@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>wuli</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <link href="style.css" rel="stylesheet" text="text/css" />
+	</head>
+	<body>
+		<article>
+			<header>Gitiy</header>
+			<section>Welcome!</section>
+      <footer><a href="https://github.com">GitHub</a></footer>
+		</article>
+	</body>
+</html>

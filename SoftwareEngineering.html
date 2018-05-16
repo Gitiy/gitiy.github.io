@@ -1,4 +1,24 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+<!DOCTYPE html><html><head><meta charset="utf-8"><style type="text/css">
+    aside {
+    position: fixed;
+    left: 3rem;
+    top: 1rem;
+    }
+aside>nav>a {
+display: list-item;
+list-style-type: cjk-heavenly-stem;
+text-decoration: none;
+margin-bottom: 1rem;
+color: black;
+}
+aside>nav>a::after {
+content: "";
+background: linear-gradient(to right, white 0%, black 50%, white 100%) repeat;
+display: block;
+height: 1px;
+}
+</style>
+<style>body {
   max-width: 980px;
   border: 1px solid #ddd;
   outline: 1300px solid #fff;
@@ -1055,29 +1075,7 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-aside {
-position: fixed;
-left: 3rem;
-top: 1rem;
-}
-aside>nav>a {
-display: list-item;
-list-style-type: cjk-heavenly-stem;
-text-decoration: none;
-margin-bottom: 1rem;
-color: black;
-}
-aside>nav>a::after {
-content: "";
-background: linear-gradient(to right, white 0%, black 50%, white 100%) repeat;
-display: block;
-height: 1px;
-}
-</style>
-    <title>SoftwareEngineering</title>
-  </head>
-  <body>
-   <article class="markdown-body"><h1 id="_1">第一次作业<a class="headerlink" href="#_1" title="Permanent link"></a></h1>
+</style><title>SoftwareEngineering</title></head><body><article class="markdown-body"><h1 id="_1">第一次作业<a class="headerlink" href="#_1" title="Permanent link"></a></h1>
 <p><strong><em>1.中国软件企业总数  总产值   GDP占比</em></strong></p>
 <ul>
 <li>软件企业总数 1-4月份中国软件企业数量共计33932个</li>
@@ -1490,8 +1488,13 @@ mvn clean
 <p><strong><em>白盒测试</em></strong><br />
  白盒测试是通过程序的源代码进行测试而不使用用户界面。这种类型的测试需要从代码句法发现内部代码在算法，溢出，路径，条件等等中的缺点或者错误，进而加以修正。   </p>
 <p><strong><em>黑盒测试</em></strong><br />
- 黑盒测试又被称为功能测试、数据驱动测试或基于规格说明的测试，是通过使用整个软件或某种软件功能来严格地测试, 而并没有通过检查程序的源代码或者很清楚地了解该软件的源代码程序具体是怎样设计的。</p></article>
- <aside>
+ 黑盒测试又被称为功能测试、数据驱动测试或基于规格说明的测试，是通过使用整个软件或某种软件功能来严格地测试, 而并没有通过检查程序的源代码或者很清楚地了解该软件的源代码程序具体是怎样设计的。</p>
+<p><strong><em>P411，求出遍历所有分支的N，M值</em></strong><br />
+ 当 <code>M=2,N=2</code> 时会遍历所有分支，顺序为 <code>ABDC</code> </p>
+<p><strong><em>JUnit</em></strong><br />
+JUnit 是一个 Java编程语言的单元测试框架。JUnit 在测试驱动的开发方面有很重要的发展，是 xUnit 家族中为最成功的一个。</p>
+<p><strong><em>CppUnit</em></strong><br />
+与 JUnit 类似，CppUnit 是C++编程语言的单元测试框架。同样也是 xUnit 家族中为最成功的一个。</p></article><aside>
       <nav>
         <a href="#_1">第一次作业</a>
         <a href="#_2">第二次作业</a>

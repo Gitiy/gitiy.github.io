@@ -367,6 +367,9 @@ ff02::3 ip6-allhosts
 #[1uandun.com]
 0.0.0.0 uun.1uandun.com
 
+#[1xasset.com]
+0.0.0.0 c6.1xasset.com
+
 #[20150.net]
 0.0.0.0 wm.20150.net
 
@@ -1227,6 +1230,9 @@ ff02::3 ip6-allhosts
 #[abcache.com]
 0.0.0.0 p.abcache.com
 0.0.0.0 s.abcache.com
+
+#[abfalse.cn]
+0.0.0.0 m.abfalse.cn
 
 #[abfirst.cn]
 0.0.0.0 m.abfirst.cn
@@ -3614,6 +3620,9 @@ ff02::3 ip6-allhosts
 #[cxaerp.com]
 0.0.0.0 xpe.cxaerp.com
 
+#[cxcxt.com]
+0.0.0.0 www.cxcxt.com
+
 #[cxxtv.com]
 0.0.0.0 news.cxxtv.com
 
@@ -4559,6 +4568,9 @@ ff02::3 ip6-allhosts
 
 #[fugetech.com]
 0.0.0.0 its.fugetech.com
+
+#[funkyimg.com]
+0.0.0.0 funkyimg.com
 
 #[funp.com]
 0.0.0.0 ad.funp.com
@@ -5632,6 +5644,9 @@ ff02::3 ip6-allhosts
 #[img3.km.com]
 0.0.0.0 img3.km.com
 
+#[img599.net]
+0.0.0.0 img599.net
+
 #[img80.net]
 0.0.0.0 dl.img80.net
 
@@ -5920,7 +5935,6 @@ ff02::3 ip6-allhosts
 0.0.0.0 img.x.jd.com
 0.0.0.0 jrclick.jd.com
 0.0.0.0 stat.m.jd.com
-0.0.0.0 union-click.jd.com
 0.0.0.0 ads.union.jd.com
 0.0.0.0 du.jd.com
 
@@ -6116,6 +6130,9 @@ ff02::3 ip6-allhosts
 0.0.0.0 popup.jointreport-switch.com
 0.0.0.0 safe-aisle.jointreport-switch.com
 0.0.0.0 static.jointreport-switch.com
+
+#[jotrening.com]
+0.0.0.0 a6.jotrening.com
 
 #[joyxv.com]
 0.0.0.0 e.joyxv.com
@@ -6564,6 +6581,9 @@ ff02::3 ip6-allhosts
 
 #[laifeng.com]
 0.0.0.0 cms.laifeng.com
+
+#[laifu365.com]
+0.0.0.0 s.laifu365.com
 
 #[laigame7.net]
 0.0.0.0 m.laigame7.net
@@ -8568,6 +8588,9 @@ ff02::3 ip6-allhosts
 0.0.0.0 c.l.qq.com
 0.0.0.0 mdevstat.qqlive.qq.com
 
+#[qq268web.com]
+0.0.0.0 j.qq268web.com
+
 #[qqgeshou.com]
 0.0.0.0 img.qqgeshou.com
 
@@ -10397,6 +10420,9 @@ ff02::3 ip6-allhosts
 0.0.0.0 log.vcgame.cn
 0.0.0.0 mcore.vcgame.cn
 
+#[ve001nz.com]
+0.0.0.0 p.ve001nz.com
+
 #[vedeh.com]
 0.0.0.0 f3.vedeh.com
 
@@ -11867,6 +11893,7 @@ ff02::3 ip6-allhosts
 0.0.0.0 uuidapi.yunos.com
 
 #[yunpifu.cn]
+0.0.0.0 m.yunpifu.cn
 0.0.0.0 yunpifu.cn
 0.0.0.0 s.yunpifu.cn
 0.0.0.0 p1.yunpifu.cn

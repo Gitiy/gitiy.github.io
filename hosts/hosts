@@ -18,6 +18,19 @@ ff02::3 ip6-allhosts
 
 # End of custom host records.
 
+#[@duckvid.fun]
+0.0.0.0 e.gsycdb.com
+
+#[@m.yushuwu.cn]
+0.0.0.0 m.mgsue.cn
+0.0.0.0 m.adaog.com
+0.0.0.0 h.t4vhzd.cn
+
+#[@m.kayege.com]
+0.0.0.0 s.360.cn
+0.0.0.0 m.tiojk.com
+0.0.0.0 e.tiojk.com
+
 #[000dn.com]
 0.0.0.0 kwcdn.000dn.com
 0.0.0.0 kwcscdn.000dn.com

@@ -18,6 +18,13 @@ ff02::3 ip6-allhosts
 
 # End of custom host records.
 
+#[@www.lanzous.com]
+0.0.0.0 statics.woozooo.com
+0.0.0.0 zkl.yuchuantech.com
+0.0.0.0 www.wxbgf.top
+0.0.0.0 www.xtjjybt.com
+0.0.0.0 www.luxoshopde.com
+
 #[000dn.com]
 0.0.0.0 kwcdn.000dn.com
 0.0.0.0 kwcscdn.000dn.com

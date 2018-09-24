@@ -25,6 +25,14 @@ ff02::3 ip6-allhosts
 0.0.0.0 www.xtjjybt.com
 0.0.0.0 www.luxoshopde.com
 
+#[@btdiggs.net]
+0.0.0.0 m.nuxyz.cn
+0.0.0.0 img.awnxiz.cn
+0.0.0.0 jc.anhuilitian.net
+0.0.0.0 s1.guanglijiudian.com
+0.0.0.0 e.xlsschina15.net
+0.0.0.0 m.yzjlsb.com
+
 #[000dn.com]
 0.0.0.0 kwcdn.000dn.com
 0.0.0.0 kwcscdn.000dn.com
@@ -1142,6 +1150,7 @@ ff02::3 ip6-allhosts
 0.0.0.0 web1.51.la
 0.0.0.0 web2.51.la
 0.0.0.0 www.51.la
+0.0.0.0 ia.51.la
 
 #[51240.com]
 0.0.0.0 fpbbdx1.51240.com
@@ -9362,6 +9371,10 @@ ff02::3 ip6-allhosts
 
 #[exosrv.com]
 0.0.0.0 exosrv.com
+0.0.0.0 ads.exosrv.com
+0.0.0.0 main.exosrv.com
+0.0.0.0 static.exosrv.com
+0.0.0.0 syndication.exosrv.com
 
 #[expat-blog.biz]
 0.0.0.0 ads.expat-blog.biz
@@ -13553,6 +13566,7 @@ ff02::3 ip6-allhosts
 
 #[jyhwt.cn]
 0.0.0.0 jyhwt.cn
+0.0.0.0 i.jyhwt.cn
 0.0.0.0 m.jyhwt.cn
 0.0.0.0 ms.jyhwt.cn
 
@@ -18277,6 +18291,7 @@ ff02::3 ip6-allhosts
 #[qiqivv.com]
 0.0.0.0 qiqivv.com
 0.0.0.0 j.qiqivv.com
+0.0.0.0 count.qiqivv.com
 
 #[qiqiww.com]
 0.0.0.0 qiqiww.com
@@ -24158,6 +24173,7 @@ ff02::3 ip6-allhosts
 
 #[xiaohui2.cn]
 0.0.0.0 xiaohui2.cn
+0.0.0.0 www.xiaohui2.cn
 
 #[xiaomi.com]
 0.0.0.0 api.ad.xiaomi.com

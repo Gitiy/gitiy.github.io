@@ -21,6 +21,14 @@ ff02::3 ip6-allhosts
 #[@m.diyibanzhu.fun]
 0.0.0.0 m.zlauk.cn
 0.0.0.0 ms.countersys.cn
+0.0.0.0 staticjs.cn
+0.0.0.0 m.pmshy.cn
+0.0.0.0 m.kyxnz.cn
+0.0.0.0 m.whsjg.cn
+0.0.0.0 m.edysn.cn
+
+#[@jx.aeidu.cn]
+0.0.0.0 drgxj.com
 
 #[@www.lanzous.com]
 0.0.0.0 statics.woozooo.com

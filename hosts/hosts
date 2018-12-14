@@ -26,6 +26,8 @@ ff02::3 ip6-allhosts
 0.0.0.0 m.kyxnz.cn
 0.0.0.0 m.whsjg.cn
 0.0.0.0 m.edysn.cn
+0.0.0.0 m.lxind.cn
+0.0.0.0 m.msujd.cn
 
 #[@jx.aeidu.cn]
 0.0.0.0 drgxj.com
@@ -44,6 +46,9 @@ ff02::3 ip6-allhosts
 0.0.0.0 s1.guanglijiudian.com
 0.0.0.0 e.xlsschina15.net
 0.0.0.0 m.yzjlsb.com
+
+#[@javhd.pro]
+0.0.0.0 xl-trk.com
 
 #[000dn.com]
 0.0.0.0 kwcdn.000dn.com
@@ -3636,6 +3641,10 @@ ff02::3 ip6-allhosts
 
 #[adxvalue.com]
 0.0.0.0 adxvalue.com
+
+#[adxxx.info]
+0.0.0.0 n.adxxx.info
+0.0.0.0 st.adxxx.info
 
 #[adyea.com]
 0.0.0.0 adyea.com

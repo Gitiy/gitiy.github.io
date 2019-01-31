@@ -22,17 +22,19 @@ class MetaFlac {
                 dv = new DataView(buf),
                 header = dv.getInt32(cur),
                 metaIndex = 0,
-                res = null;
-
+                res = null,
+                type = null,
+                size = null;
             while ((header & 0x80000000) >> 31 == 0) {
                 cur += 4; // header size
-                let type = (header & 0x7f000000) >> 24;
-                let size = header & 0x00ffffff;
-
+                type = (header & 0x7f000000) >> 24;
+                size = header & 0x00ffffff;
                 switch (type) {
                     case 0:
+                    case 1:
                     case 3:
                     case 4:
+                    case 5:
                     case 6:
                         // MetaFlac.METADATA_BLOCK_STREAMINFO(buf.slice(cur,cur + size));
                         // console.log(type,  MetaFlac.METADATA_BLOCK_HEADER_TYPE[parseInt(type)]);
@@ -55,6 +57,16 @@ class MetaFlac {
                 cur += size;
                 header = dv.getInt32(cur);
             }
+
+            // last metadata block
+            type = (header & 0x7f000000) >> 24;
+            size = header & 0x00ffffff;
+            console.log(`%cMetadata Block #${metaIndex}, size: ${size}`, "color:blue;");
+            res = MetaFlac.METADATA_BLOCK_HEADER_TYPE[type](buf.slice(cur, cur + size), true, size);
+            res.meta['size'] = size;
+            res.meta['index'] = metaIndex;
+            this.metas.push(res);
+
         }).catch((e) => {
             console.log(e)
             return e;
@@ -71,11 +83,11 @@ class MetaFlac {
     }
     static get METADATA_BLOCK_HEADER_TYPE() {
         return [MetaFlac.METADATA_BLOCK_STREAMINFO,
-            null,
+        MetaFlac.METADATA_BLOCK_PADDING,
             null,
         MetaFlac.METADATA_BLOCK_SEEKTABLE,
         MetaFlac.METADATA_BLOCK_VORBIS_COMMENT,
-            null,
+        MetaFlac.METADATA_BLOCK_CUESHEET,
         MetaFlac.METADATA_BLOCK_PICTURE];
     }
     getFileArrayBuffer(file) {
@@ -155,6 +167,32 @@ class MetaFlac {
         res.meta["bitsPerSample"] = res.stylized.data[9];
         res.meta["totalSamples"] = res.stylized.data[10];
         res.meta["md5Signature"] = res.stylized.data[11];
+
+        return res;
+    }
+
+    static METADATA_BLOCK_PADDING(buf, isLast, length) {
+        console.log(`Type: 1 (PADDING)`);
+        let res = {
+            "stylized": {
+                "tips": [
+                    (x = null) => `type: ${x}`,
+                    (x = null) => `is last: ${x}`,
+                    (x = null) => `length: ${x}`,
+                ],
+                "data": [1, isLast, length,],
+            },
+            meta: {},
+        };
+
+        for (let i in res.stylized.tips) {
+            console.log(res.stylized.tips[i](res.stylized.data[i]));
+        }
+
+        res.meta["type"] = 1;
+        res.meta["isLast"] = isLast;
+        res.meta["length"] = length;
+        res.meta["buf"] = buf;
 
         return res;
     }
@@ -281,6 +319,157 @@ class MetaFlac {
         res.meta["vendorString"] = res.stylized.data[4];
         res.meta["userCommentListLength"] = res.stylized.data[5];
         res.meta["comments"] = comments;
+
+        return res;
+    }
+
+    static METADATA_BLOCK_CUESHEET(buf, isLast, length) {
+        console.log(`Type: 5 (CUESHEET)`);
+
+        let cur = 0;
+
+        let res = {
+            "stylized": {
+                "tips": [
+                    (x = null) => `type: ${x}`,
+                    (x = null) => `is last: ${x}`,
+                    (x = null) => `length: ${x}`,
+                    (x = null) => `media catalog number: ${x}`,
+                    (x = null) => `lead-in: ${x.toString()}`,
+                    (x = null) => `is CD: ${x}`,
+                    (x = null) => `number of tracks: ${x}`,
+                    (x = null) => {
+                        let res = "";
+                        for (let i in x) {
+                            res += `\ttrack[${i}]\n\t  offset: ${x[i]['offset']}\n\t  number: ${x[i]['number']}\n\t  ISRC:${x[i]['ISRC']}\n\t  type: ${x[i]['type']}\n\t  pre-emphasis: ${x[i]['pre-emphasis']}\n\t  number of index points: ${x[i]['number of index points']}`;
+                            for (let j in x[i]['index']) {
+                                res += `\n\t  index[${j}]:\n\t\toffset: ${x[i]['index'][j]['offset']}\n\t\tnumber: ${x[i]['index'][j]['number']}`;
+                            }
+                            res += "\n";
+                        }
+                        return res;
+                    },
+                ],
+                "data": [5, isLast, length,],
+            },
+            meta: {},
+        };
+
+        // Media catalog number, in ASCII printable characters 0x20-0x7e.
+        // console.log(buf.slice(cur, cur + 128));
+        // console.log((new Uint8Array(buf.slice(cur, cur + 128))).filter(v => v >= 0x20 && v <= 0x7e));
+        let mediaCatalogNumber = "";
+        if (new Uint8Array(buf.slice(cur, cur + 128)).every(v => v >= 0x20 && v <= 0x7e)) {
+            mediaCatalogNumber = decodeURIComponent(String.fromCharCode.apply(null,
+                new Uint8Array(buf.slice(cur, cur + 128))).split('').map(c => {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                }).join(''));
+        }
+        cur = cur + 128;
+        res.stylized.data.push(mediaCatalogNumber);
+
+        // The number of lead-in samples.
+        let leadIn = new DataView(buf).getBigInt64(cur);
+        cur = cur + 8;
+        res.stylized.data.push(leadIn)
+
+        // 1 if the CUESHEET corresponds to a Compact Disc, else 0.
+        let isCD = (new DataView(buf).getInt8(cur) & 0x80) >> 7;
+        res.stylized.data.push(!!isCD);
+
+        // Reserved
+        let reserved = new Int8Array(buf.slice(cur, cur + 259));
+        reserved[0] = reserved[0] & 0x7F;
+        reserved = reserved.buffer;
+        cur = cur + 259;
+
+        // The number of tracks.
+        let tracksNum = new DataView(buf).getInt8(cur);
+        cur = cur + 1;
+        res.stylized.data.push(tracksNum);
+
+        let tracks = [];
+        // CUESHEET_TRACK
+        for (let i = 0; i < tracksNum; i++) {
+            let track = {}
+            // Track offset in samples, relative to the beginning of the FLAC audio stream.
+            track['offset'] = new DataView(buf).getBigInt64(cur);
+            cur = cur + 8;
+
+            // Track number. 
+            track['number'] = new DataView(buf).getInt8(cur);
+            if (track['number'] < 0) {
+                track['number'] = new DataView(buf).getUint8(cur) + " (LEAD-OUT)";
+            }
+            cur = cur + 1;
+
+            // Track ISRC. 
+
+            if (new Int8Array(buf.slice(cur, cur + 12)).every(v => v == 0)) {
+                track['ISRC'] = "";
+            } else {
+                track['ISRC'] = decodeURIComponent(String.fromCharCode.apply(null,
+                    new Uint8Array(buf.slice(cur, cur + 12))).split('').map(c => {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    }).join(''));
+            }
+
+            cur = cur + 12;
+
+
+            let t = new DataView(buf).getInt8(cur);
+
+            // The track type: 0 for audio, 1 for non-audio. 
+            track['type'] = ((t & 0x80) >> 7) ? "NON-AUDIO" : "AUDIO";
+
+            // he pre-emphasis flag: 0 for no pre-emphasis, 1 for pre-emphasis.
+            track['pre-emphasis'] = ((t & 0x40) >> 6) ? true : false;
+
+            // Reserved
+            let reserved = new Int8Array(buf.slice(cur, cur + 14));
+            reserved[0] = reserved[0] & 0x3F;
+            reserved = reserved.buffer;
+            cur = cur + 14;
+
+            // The number of track index points.
+            track['number of index points'] = new DataView(buf).getInt8(cur);
+            cur = cur + 1;
+
+            // CUESHEET_TRACK_INDEX
+            track["index"] = []
+            for (let j = 0; j < track['number of index points']; j++) {
+                // Offset in samples, relative to the track offset, of the index point. 
+                let index = {};
+                index['offset'] = new DataView(buf).getBigInt64(cur);
+                cur = cur + 8;
+
+                //The index point number.
+                index['number'] = new DataView(buf).getInt8(cur);
+                cur = cur + 1;
+
+                let reserved = buf.slice(cur, cur + 3);
+                cur = cur + 3;
+
+                track['index'].push(index);
+            }
+            tracks.push(track)
+        }
+
+        res.stylized.data.push(tracks);
+        // console.log(tracks, cur);
+
+        for (let i in res.stylized.tips) {
+            console.log(res.stylized.tips[i](res.stylized.data[i]));
+        }
+
+        res.meta["type"] = 5;
+        res.meta["isLast"] = isLast;
+        res.meta["length"] = length;
+        res.meta["mediaCatalogNumber"] = res.stylized.data[3];
+        res.meta["leadInSamples"] = res.stylized.data[4];
+        res.meta["isCD"] = res.stylized.data[5];
+        res.meta["tracksLength"] = res.stylized.data[6];
+        res.meta["tracks"] = res.stylized.data[7];
 
         return res;
     }
@@ -434,7 +623,7 @@ flac.addTextPanel = function (stylized, meta) {
         h2 = document.createElement("h2"),
         pre = document.createElement("pre");
 
-    h2.textContent = `Metadata Block #${meta.index}, size: ${meta.size}`;
+    h2.textContent = `Metadata Block #${meta.index}, size: ${meta.size}, type: ${meta.type} (${getMetaHeaderType(meta.type)})`;
     con.className = "card";
 
     let data = [];
@@ -528,6 +717,7 @@ function handleFiles(oFiles) {
         // }
 
         if (oFiles[nFileId].type == "audio/flac") {
+            document.querySelectorAll("main>article:not(:first-of-type)").forEach((v, i, a) => v.remove());
             handleFlac(oFiles[nFileId])
         }
     }

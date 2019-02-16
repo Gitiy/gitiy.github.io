@@ -3,11 +3,6 @@
     "short_name": "Tools",
     "icons": [
         {
-            "src": "images/icons/icon-128x128.png",
-            "sizes": "128x128",
-            "type": "image/png"
-        },
-        {
             "src": "images/icons/icon-32x32.png",
             "sizes": "32x32",
             "type": "image/png"
@@ -18,8 +13,13 @@
             "type": "image/png"
         },
         {
+            "src": "images/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
             "src": "images/icons/icon-256x256.png",
-            "sizes": "256x356",
+            "sizes": "256x256",
             "type": "image/png"
         },
         {
@@ -30,6 +30,6 @@
     ],
     "start_url": "index.html",
     "display": "standalone",
-    "background_color": "#3E4EB8",
-    "theme_color": "#2F3BA2"
+    "background_color": "#ffffff",
+    "theme_color": "#ececec"
 }

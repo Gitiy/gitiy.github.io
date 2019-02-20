@@ -151,7 +151,7 @@ generator.init = function (app) {
         <span><input type="checkbox" checked id="digital"><label for="digit">[0-9]</label></span>
         <span><input type="checkbox" checked id="special"><label for="special">[special]</label></span>
     </div>
-    <div class="flex-row flex-full password-generatored">点击Gen生成密码</div>
+    <div class="flex-row flex-full justify-content-center password-generatored">点击Gen生成密码</div>
     <div class="flex-row justify-content-end align-items-center">
         <span class="password-range">
             <input type="number" id="min" min=6 value="12" placeholder="min">

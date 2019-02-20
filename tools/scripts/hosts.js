@@ -74,9 +74,9 @@ hosts.init = function (app) {
         <textarea class="hosts input"></textarea>
     </div>
     <div class="row text-center">
-        <span class="button" id="sort">Sort</span>
-        <span class="button" id="clear">Clear</span>
-        <span class="button" id="copy">Copy</span>
+        <span class="button" id="sort">sort</span>
+        <span class="button" id="clear">clear</span>
+        <span class="button" id="copy">copy</span>
     </div>
     <div class="card">
         <textarea class="hosts output"></textarea>

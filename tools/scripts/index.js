@@ -17,6 +17,12 @@ const toolList = [
       hash:"password-generator",
       src:"./generator.js",
     },
+    {
+      name: "X-AMP To IFW",
+      description:"a simple tool to convert X-APM config to IFW",
+      hash:"xamp2ifw",
+      src:"./ifw.js",
+    },
 ];
 
 let tools = {

@@ -88,11 +88,12 @@ h2.header-title {
 }
 
 .button {
-    padding: 1ex 2ex;
+    padding: 1ex 1ex;
     /* margin: 0 1rem; */
     border-radius: 2px;
     transition: .3s;
     font-size: small;
+    text-transform: uppercase;
 }
 
 span.button{

@@ -2,31 +2,31 @@ const toolList = [
     {
         name: "AdBolck Hosts Sort",
         description: "a simple tool to sort adblock hosts items",
-        hash: "hostssort",
+        hash: "#hostssort",
         src: "./hosts.js",
     },
     {
         name: "FlacMate",
         description: "a simple tool to show flac's matedata",
-        hash: "flacmate",
+        hash: "#flacmate",
         src: "./flacmeta.js",
     },
     {
       name: "Password Generator",
       description:"a simple tool to generator password",
-      hash:"password-generator",
+      hash:"#password-generator",
       src:"./generator.js",
     },
     {
       name: "X-AMP To IFW",
       description:"a simple tool to convert X-APM config to IFW",
-      hash:"xamp2ifw",
+      hash:"#xamp2ifw",
       src:"./ifw.js",
     },
 ];
 
 let tools = {
-    title: "Tools",
+    title: "Tools PWA",
     iconClass: null,
     description: "tools list",
 };

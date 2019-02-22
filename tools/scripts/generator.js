@@ -57,7 +57,6 @@ generator.gen = function (min, max) {
 }
 
 generator.copy = function (text, e) {
-    //console.log(this, e);
     let textField = document.createElement("input");
     let currentFocus = document.activeElement;
     textField.style.cssText = "position: fixed; z-index: -2;";
@@ -67,19 +66,11 @@ generator.copy = function (text, e) {
     textField.setSelectionRange(0, textField.value.length);
     document.execCommand("copy", true);
     console.log("已复制", text);
-    // require("system-core:system/uiService/tip/tip.js").show({"msg":"yun","mode":"success"});
-    // yunHeader.tools.ui.tip.show({ "msg": `已复制${text}`, "type": "success" });
     currentFocus.focus();
     textField.remove();
 }
 
 generator.addRecordUI = function (index, record) {
-    let html = `<article class="card flex-row">
-                <span class="password-entry">longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong</span>
-                <span class="button justify-self-end">copy</span>
-                <span class="button justify-self-end">del</span>
-            </article>`;
-
     let con = document.createElement("article"),
         entry = document.createElement("span"),
         copyBtn = document.createElement("span"),
@@ -146,10 +137,10 @@ generator.listRecords = function () {
 generator.init = function (app) {
     const html = `<article class="card">
     <div class="grid justify-content-center">
-        <span><input type="checkbox" checked id="upper"><label for="upper">[A-Z]</label></span>
-        <span><input type="checkbox" checked id="lower"><label for="lower">[a-z]</label></span>
-        <span><input type="checkbox" checked id="digital"><label for="digit">[0-9]</label></span>
-        <span><input type="checkbox" checked id="special"><label for="special">[special]</label></span>
+        <label for="upper"><input type="checkbox" checked id="upper"><span class="button">[A-Z]</span></label>
+        <label for="lower"><input type="checkbox" checked id="lower"><span class="button">[a-z]</span></label>
+        <label for="digital"><input type="checkbox" checked id="digital"><span class="button">[0-9]</span></label>
+        <label for="special" title='~, !, @, #, $, %, ^, &, *, (, ), _, +'><input type="checkbox" checked id="special"><span class="button">[special]</span></label>
     </div>
     <div class="flex-row flex-full justify-content-center password-generatored">点击Gen生成密码</div>
     <div class="flex-row justify-content-end align-items-center">
@@ -182,8 +173,10 @@ generator.init = function (app) {
 
         generator.ui.btn.addEventListener("click", (e) => generator.gen.call(generator,
             generator.ui.min.value, generator.ui.max.value), false);
+
         generator.ui.copy.addEventListener("click", (e) => generator.copy.call(generator.ui.panel,
             generator.ui.currentPassword.textContent, e), false)
+
         generator.listRecords();
     }
 }

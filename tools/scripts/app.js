@@ -3,7 +3,7 @@
     const index = {
         name: "Tools PWA",
         description: "a simple tool set by Gitiy",
-        hash: "",
+        hash: "#",
         src: "./index.js",
     };
 
@@ -13,13 +13,18 @@
         icon: document.querySelector("i.icon"),
     };
 
-    app.route = function (route) {
+    app.route = function (route, needPushState = true) {
+        console.log(route)
+        if(!route){
+            return
+        }
         import(route.src).then((module) => {
             if (app.module) {
                 app.module.tool.exit(this);
             }
-            // console.log(module);
-            window.history.pushState(route, route.name, route.hash);
+            if (window.location.hash !== route.hash && needPushState) {
+                window.history.pushState(route, route.name, route.hash);
+            }
             app.init(module);
         });
     }
@@ -42,8 +47,8 @@
     app.route(index);
 
     window.addEventListener("popstate", (e) => {
-        console.log(e.state);
-        app.route(e.state);
+        // console.log(e.state);
+        app.route(e.state, false);
     }, false);
 
     app.icon.addEventListener("click", (e) => {

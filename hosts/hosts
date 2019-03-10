@@ -18,6 +18,21 @@ ff02::3 ip6-allhosts
 
 # End of custom host records.
 
+#[@www.haitum.com]
+0.0.0.0 m.ruxmc.cn
+
+#[@www.cilimao.cc]
+0.0.0.0 dg.xcxzxc.cn
+
+#[@feikebt.info]
+0.0.0.0 ip.webstats.bid
+0.0.0.0 sy.damiren.com
+0.0.0.0 assets.hfxs01il.com
+0.0.0.0 ct.hf01il.com
+0.0.0.0 m.sjaidu.com
+0.0.0.0 www.93vitui.com
+0.0.0.0 js.guangsss1999.com
+
 #[@m.diyibanzhu.fun]
 0.0.0.0 m.zlauk.cn
 0.0.0.0 ms.countersys.cn
@@ -18505,6 +18520,7 @@ ff02::3 ip6-allhosts
 0.0.0.0 s.gdt.qq.com
 0.0.0.0 scdown.qq.com
 0.0.0.0 showwxml.qq.com
+0.0.0.0 stat.y.qq.com
 0.0.0.0 tj.b.qq.com
 0.0.0.0 trace.qq.com
 0.0.0.0 user1.game.qq.com
@@ -20301,7 +20317,9 @@ ff02::3 ip6-allhosts
 
 #[snssdk.com]
 0.0.0.0 analytics.snssdk.com
+0.0.0.0 mon.snssdk.com
 0.0.0.0 temai.snssdk.com
+0.0.0.0 toblog.snssdk.com
 
 #[so9l.com]
 0.0.0.0 so9l.com
@@ -22447,6 +22465,7 @@ ff02::3 ip6-allhosts
 0.0.0.0 msg.umengcloud.com
 0.0.0.0 udash.umengcloud.com
 0.0.0.0 upoll.umengcloud.com
+0.0.0.0 ulogs.umengcloud.com
 0.0.0.0 utop.umengcloud.com
 
 #[umilu.com]

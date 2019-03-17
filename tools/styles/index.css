@@ -194,13 +194,13 @@ i.icon.back::before {
     flex-direction: row;
 }
 
-.password-generator input[type="checkbox"]~span.button{
+.password-generator input[type="checkbox"]+span.button{
     text-transform: none;
     font-family: robot monospace;
     user-select: none;
 }
 
-.password-generator input[type="checkbox"]:checked~span:first-of-type {
+.password-generator input[type="checkbox"]:checked+span.button:first-of-type {
     background: cadetblue;
     color: white;
 }

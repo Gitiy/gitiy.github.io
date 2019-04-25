@@ -12,6 +12,8 @@
 (function () {
   'use strict';
 
+
+
   async function sendAria2RPC(data) {
     try {
       const resp = await fetch('http://localhost:6800/jsonrpc', {
@@ -80,8 +82,8 @@
     return new Uint8Array(byteArray);
   }
 
-  function notify(options){
-    if(window[Symbol.for('notice+')]){
+  function notify(options) {
+    if (window[Symbol.for('notice+')]) {
       window[Symbol.for('notice+')].notice(options);
     }
   }
@@ -443,7 +445,57 @@
           }
           console.log(s);
         });
+
+        setTimeout(() => {
+          try {
+            let flacIcon = document.createElement('i');
+            flacIcon.style.cssText = 'text-transform: uppercase;border: 1px solid #31c27c; padding: 1px 4px; font-size: 7px; border-radius: 4px; color: #34c47e; cursor: pointer; position: relative; top: 2px; user-select: none; line-height: 50px; margin-right: 4px;';
+            flacIcon.textContent = 'flac';
+            for (let i of json.data.list) {
+              if (i.sizeflac) {
+                const con = document.querySelector(`li[mid="${i.songid}"]`).querySelector('div.songlist__songname');
+                const t = flacIcon.cloneNode(true);
+                t.setAttribute('title', `通过 aria2 下载 ${i.songname}.flac`);
+                con.insertAdjacentElement('afterbegin', t);
+                t.addEventListener('click', async () => {
+                  const vkey = await QQMusicPlus.getVkey();
+                  let url = `http://mobileoc.music.tc.qq.com/F000${json.data.list[i].strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
+                    name = `${i.songname}.flac`.replace(/[<>:"/\\|?*]/g, ''); // Remove illegal characters
+                  console.log(`${url}\n\tsplit=16\n\tmax-connection-per-server=16\n\tdir=./\n\tout=${name}\n`);
+
+                  let data = {
+                    'jsonrpc': '2.0',
+                    'id': Date.now(),
+                    'method': 'aria2.addUri',
+                    'params': [
+                      [url,],
+                      {
+                        'out': `${name}`,
+                        'split': 16,
+                        'max-connection-per-server': 16,
+                      },
+                    ],
+                  };
+
+                  try {
+                    let res = await sendAria2RPC(data);
+                    if (res) {
+                      console.log(`已添加 ${name} 到 aria2 任务`, res);
+                    }
+                  } catch (error) {
+                    console.log('添加 aria2 出错', error);
+                  }
+                });
+              }
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        }, 1000); // delay for page render
+
         return json;
+
+
       } catch (error) {
         console.log(error);
         notify(error.message);

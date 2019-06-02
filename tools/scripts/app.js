@@ -43,9 +43,13 @@ tools.createListItem = function ({ name, description, hash, src, rest, }) {
     // console.debug(name, description, hash, src, rest);
     let item = document.createElement("article"),
         titleNode = document.createElement("h1"),
-        descriptionNode = document.createElement("p");
-    item.appendChild(titleNode);
-    item.appendChild(descriptionNode);
+        descriptionNode = document.createElement("p"),
+        contains = document.createElement('a');
+    item.appendChild(contains);
+    contains.appendChild(titleNode);
+    contains.appendChild(descriptionNode);
+
+    contains.setAttribute('href', hash);
 
     item.className = "card tool-item";
     titleNode.className = "tool-name";

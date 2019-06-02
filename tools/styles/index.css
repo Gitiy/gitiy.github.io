@@ -1,8 +1,8 @@
 * {
-   box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
-::selection{
+::selection {
     background: cadetblue;
     color: white;
 }
@@ -16,7 +16,7 @@ html, body {
     font-weight: 400;
     color: #4a4a4a;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale; 
+    -moz-osx-font-smoothing: grayscale;
 }
 
 header.header {
@@ -31,7 +31,7 @@ header.header {
     padding: 0 2rem;
     z-index: 99;
     height: 4rem;
-    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 2px 9px 1px rgba(0, 0, 0, 0.12), 0 4px 2px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
 
 main.main {
@@ -61,15 +61,15 @@ h2.header-title {
     overflow: hidden;
 }
 
-.card{
+.card {
     margin: 1rem;
     padding: 1rem;
     background-color: #fff;
     border-radius: 2px;
-    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 2px 9px 1px rgba(0, 0, 0, 0.12), 0 4px 2px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
-.card textarea.hosts{
+.card textarea.hosts {
     width: 100%;
     height: 15rem;
     border-color: lightgray;
@@ -82,7 +82,7 @@ h2.header-title {
     color: lightgray;
 }
 
-.template h1{
+.template h1 {
     width: fit-content;
 }
 
@@ -95,19 +95,19 @@ h2.header-title {
     text-transform: uppercase;
 }
 
-span.button{
+span.button {
     display: inline-block;
 }
 
-.button:hover{
+.button:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-.button:active{
+.button:active {
     background-color: rgba(0, 0, 0, 0.17);
 }
 
-.text-center{
+.text-center {
     text-align: center;
 }
 
@@ -118,39 +118,52 @@ i.icon {
 }
 
 i.icon.back::before {
-    content:"";
-    display:block;
+    content: "";
+    display: block;
     height: 50%;
     width: 50%;
     transform: rotate(-45deg) translateY(50%);
-    border-top:3px solid currentColor;
-    border-left:3px solid currentColor;
+    border-top: 3px solid currentColor;
+    border-left: 3px solid currentColor;
 }
 
-.toollist{
+.toollist {
     width: 100%;
     max-width: 800px;
     align-self: center;
 }
 
+.toollist>.card.tool-item{
+    background-image: linear-gradient(90deg, white, #fff9);
+    background-color: unset;
+}
 
-.justify-content-start{
+.toollist>.tool-item>a {
+    color: currentColor;
+    text-decoration: unset;
+}
+
+.toollist>.tool-item>a:hover {
+    text-decoration: underline;
+}
+
+.justify-content-start {
     justify-content: flex-start;
 }
 
-.justify-content-center{
+.justify-content-center {
     justify-content: center;
 }
 
-.justify-content-end{
+.justify-content-end {
     justify-content: flex-end;
 }
 
-.justify-self-end{
+.justify-self-end {
     justify-self: flex-end;
 }
 
-.align-items-center{
+.align-items-center {
     align-items: center;
 }
 
@@ -160,22 +173,22 @@ i.icon.back::before {
     flex-direction: column;
 }
 
-.password-generatored{
-        width: 100%;
-        word-break: break-all;
-        writing-mode: lr;
-        font-size: larger;
-        font-family: unset;
-        font-weight: bold;
-        justify-items: center;
-        align-items: center;
+.password-generatored {
+    width: 100%;
+    word-break: break-all;
+    writing-mode: lr;
+    font-size: larger;
+    font-family: unset;
+    font-weight: bold;
+    justify-items: center;
+    align-items: center;
 }
 
 .password-generator>div {
     margin: 1rem 0;
 }
 
-.password-generator .password-entry{
+.password-generator .password-entry {
     overflow-x: auto;
     /* font-size: large; */
     font-style: oblique;
@@ -184,16 +197,16 @@ i.icon.back::before {
     align-self: center;
 }
 
-.flex-full{
+.flex-full {
     flex-grow: 1;
 }
 
-.flex-row{
+.flex-row {
     display: flex;
     flex-direction: row;
 }
 
-.password-generator input[type="checkbox"]+span.button{
+.password-generator input[type="checkbox"]+span.button {
     text-transform: none;
     font-family: robot monospace;
     user-select: none;
@@ -208,12 +221,13 @@ i.icon.back::before {
     display: none;
 }
 
-.password-generator .grid{
+.password-generator .grid {
     display: grid;
     column-gap: 5px;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns: repeat(4, 1fr);
     text-align: center;
 }
+
 .password-generator input[type="number"] {
     border: none;
     border-bottom: 1px solid;
@@ -222,14 +236,15 @@ i.icon.back::before {
     font-size: small;
     width: 2rem;
 }
+
 .password-generator span.password-range {
     flex-grow: 1;
     text-align: right;
 }
 
-.flacmeta #dropbox{
+.flacmeta #dropbox {
     height: 200px;
-    border:1px dashed;
+    border: 1px dashed;
     text-align: center;
     display: flex;
     align-items: center;
@@ -237,22 +252,24 @@ i.icon.back::before {
     user-select: none;
 }
 
-.image-caption{
+.image-caption {
     text-align: center;
     font-style: oblique;
     line-height: 2rem;
-    font-family: -webkit-pictograph,serif
+    font-family: -webkit-pictograph, serif
 }
+
 .image-figure {
-    box-shadow: 0px 2px 3px 0 rgba(0,0,0,.16), -2px 4px 5px 0 rgba(0,0,0,.12), -1px 2px 4px 0 rgba(0,0,0,.14);
+    box-shadow: 0px 2px 3px 0 rgba(0, 0, 0, .16), -2px 4px 5px 0 rgba(0, 0, 0, .12), -1px 2px 4px 0 rgba(0, 0, 0, .14);
     max-width: 100%;
     margin: 1rem 0;
 }
 
-pre{
+pre {
     overflow-x: auto;
 }
-img{
+
+img {
     max-width: 100%;
     height: auto;
 }

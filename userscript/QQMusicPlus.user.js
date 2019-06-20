@@ -107,8 +107,8 @@
 
         static async getVkey() {
             try {
-                // const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
-                const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&songmid=003a1tne1nSz1Y&filename=0.m4a&guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220');
+                const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
+                //const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&songmid=003a1tne1nSz1Y&filename=0.m4a&guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220');
                 const json = await resp.json();
                 return json.data.items[0].vkey;
             } catch (error) {
@@ -326,8 +326,8 @@
                 aria2.addEventListener('click', async (e) => {
                     const vkey = await QQMusicPlus.getVkey();
                     let s = '';
-                    // let url = `http://streamoc.music.tc.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`;
-                    let url = `http://mobileoc.music.tc.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`;
+                    let url = `http://dl.stream.qqmusic.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`;
+                    // let url = `http://mobileoc.music.tc.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`;
 
                     s += `${url}\n\tsplit=16\n\tmax-connection-per-server=16\n\tdir=./\n\tout=${name}\n`;
                     let data = {
@@ -431,8 +431,8 @@
                     let s = '';
                     for (let i in json.data.list) {
                         if (json.data.list[i].sizeflac) {
-                            // let url = `http://streamoc.music.tc.qq.com/F000${json.data.list[i].strMediaMid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`;
-                            let url = `http://mobileoc.music.tc.qq.com/F000${json.data.list[i].strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
+                            let url = `http://dl.stream.qqmusic.qq.com/F000${json.data.list[i].strMediaMid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`,
+                                //let url = `http://mobileoc.music.tc.qq.com/F000${json.data.list[i].strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
                                 name = `${json.data.list[i].songname}.flac`.replace(/[<>:"/\\|?*]/g, ''); // Remove illegal characters
                             s += `${url}\n\tsplit=16\n\tmax-connection-per-server=16\n\tdir=./\n\tout=${name}\n`;
 
@@ -477,7 +477,8 @@
                                 con.insertAdjacentElement('afterbegin', t);
                                 t.addEventListener('click', async () => {
                                     const vkey = await QQMusicPlus.getVkey();
-                                    let url = `http://mobileoc.music.tc.qq.com/F000${i.strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
+                                    let url = `http://dl.stream.qqmusic.qq.com/F000${i.strMediaMid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`,
+                                        //let url = `http://mobileoc.music.tc.qq.com/F000${i.strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
                                         name = `${i.songname}.flac`.replace(/[<>:"/\\|?*]/g, ''); // Remove illegal characters
                                     console.log(`${url}\n\tsplit=16\n\tmax-connection-per-server=16\n\tdir=./\n\tout=${name}\n`);
 

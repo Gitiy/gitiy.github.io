@@ -105,9 +105,10 @@
             return null;
         }
 
-        static async getVkey() {
+        static async getVkey(mid) {
             try {
-                const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
+                const resp = await fetch(`https://u.y.qq.com/cgi-bin/musicu.fcg?-=getplaysongvkey2682247447678878&g_tk=5381&loginUin=956581739&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%222796982635%22%2C%22songmid%22%3A%5B%22${mid}%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%22956581739%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A956581739%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D`);
+                // const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
                 //const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&songmid=003a1tne1nSz1Y&filename=0.m4a&guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220');
                 const json = await resp.json();
                 return json.data.items[0].vkey;
@@ -139,7 +140,7 @@
                     transMap = {};
 
                 for (let l of trans.split('\n')) {
-                    if (l.split(']').pop() === '//' || /^腾讯享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/, '').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
+                    if (l.split(']').pop() === '//' || /^腾讯享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/,'').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
                         continue;
                     }
                     let tagVals = lrcTagValue(l);

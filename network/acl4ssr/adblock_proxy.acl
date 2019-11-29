@@ -65,6 +65,13 @@
 #[yam.com]
 (^|\.)admd\.yam\.com$
 
+#[@www.nfmovies.com]
+(^|\.)cloudflareinsights\.com$
+
+#[@b.apkgm.top]
+(^|\.)51yaliesha\.com$
+117.169.98.214/32
+
 #[@www.lanzous.com]
 (^|\.)statics\.woozooo\.com$
 (^|\.)zkl\.yuchuantech\.com$

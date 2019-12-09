@@ -65,6 +65,14 @@
 #[yam.com]
 (^|\.)admd\.yam\.com$
 
+#[cytcm.com]
+(^|\.)cytcm\.com$
+
+#[@jianshu.com]
+(^|\.)xu7b\.com$
+(^|\.)lvehaisen\.com$
+(^|\.)events\.jianshu\.io$
+
 #[@www.nfmovies.com]
 (^|\.)cloudflareinsights\.com$
 

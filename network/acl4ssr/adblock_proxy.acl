@@ -76,8 +76,12 @@
 #[@www.nfmovies.com]
 (^|\.)cloudflareinsights\.com$
 
-#[@b.apkgm.top]
+#[@sukebei.nyaa.si]
+(^|\.)jads\.co$
+
+#[@tzfile.com]
 (^|\.)51yaliesha\.com$
+(^|\.)zmgod\.com$
 117.169.98.214/32
 
 #[@www.lanzous.com]
@@ -91,7 +95,7 @@
 (^|\.)aqours\.today$
 
 #[@javhd.pro]
-(^|\.)xl-trk\.com&
+(^|\.)xl-trk\.com$
 (^|\.)thterras\.com$
 (^|\.)syndicpop\.com$
 (^|\.)astpvgpwbewx\.com$
@@ -101,8 +105,8 @@
 (^|\.)tssandycateup\.com$
 
 #[@javfun.net]
-(^|\.)brazzers3x\.com&
-(^|\.)zendesk\.com&
+(^|\.)brazzers3x\.com$
+(^|\.)zendesk\.com$
 
 # 163
 (^|\.)(adgeo|bobo|fa|g|g1|gb|nex)(\.corp|)\.163\.com$

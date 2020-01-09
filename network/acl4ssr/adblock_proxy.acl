@@ -1,7 +1,5 @@
 #**********************************************************************
 #
-# 最后更新： 2019年11月27日
-#
 # 参数解释：
 # [proxy_all] 默认代理
 # [bypass_all] 默认直连
@@ -519,7 +517,7 @@
 (^|\.)applovin\.com$
 (^|\.)guangzhuiyuan\.com$
 
-# Toutiao	
+# Toutiao
 (^|\.)(ad|sm|dsp|nativeapp|partner)\.toutiao\.com$
 
 # Twitter
@@ -1587,6 +1585,11 @@
 #[trix360.com]
 (^|.)trix360\.com$
 
+#[yulinzhanye.com]
+(^|.)yulinzhanye\.com$
+
+
+
 # 360
 (^|\.)360\.cn$
 (^|\.)qhimg\.com$
@@ -1634,7 +1637,7 @@
 (^|\.)biligame\.net$
 (^|\.)geetest\.com$
 (^|\.)hdslb\.com$
-(^|\.)im9\.com$ 
+(^|\.)im9\.com$
 
 # Blizzard
 (^|\.)battle\.net$
@@ -1659,7 +1662,7 @@
 (^|\.)firebaseio\.com$
 (^|\.)hockeyapp\.net$
 (^|\.)smartmailcloud\.com$
- 
+
 # Sina
 (^|\.)miaopai\.com$
 (^|\.)sina\.cn$
@@ -1791,6 +1794,7 @@
 (^|\.)infzm\.com$
 (^|\.)ipip\.net$
 (^|\.)iqiyi\.com$
+(^|\.)qiyi\.com$
 (^|\.)it168\.com$
 (^|\.)ithome\.com$
 (^|\.)ixdzs\.com$
@@ -1800,6 +1804,7 @@
 (^|\.)jianshu\.io$
 (^|\.)jianshuapi\.com$
 (^|\.)jiathis\.com$
+(^|\.)jmstatic\.com$
 (^|\.)jumei\.com$
 (^|\.)kanimg\.com$
 (^|\.)kankan\.com$

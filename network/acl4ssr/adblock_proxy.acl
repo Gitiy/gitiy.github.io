@@ -66,6 +66,10 @@
 #[cytcm.com]
 (^|\.)cytcm\.com$
 
+#[@zhaishuyuan.com]
+(^|\.)iewad\.net$
+(^|\.)mymederback\.com$
+
 #[@jianshu.com]
 (^|\.)xu7b\.com$
 (^|\.)lvehaisen\.com$

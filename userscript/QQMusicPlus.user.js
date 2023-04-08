@@ -7,7 +7,7 @@
 // @updateURL    https://raw.githubusercontent.com/Gitiy/gitiy.github.io/master/userscript/QQMusicPlus.user.js
 // @downloadURL  https://raw.githubusercontent.com/Gitiy/gitiy.github.io/master/userscript/QQMusicPlus.user.js
 // @require      https://raw.githubusercontent.com/Gitiy/gitiy.github.io/master/userscript/utils/notice.js
-// @match        https://y.qq.com/n/yqq/*
+// @match        https://y.qq.com/*
 // ==/UserScript==
 (function () {
     'use strict';
@@ -99,18 +99,47 @@
             if (url.includes('song/')) {
                 return url.split('song/')[1].split('.')[0];
             }
-            if (url.includes('album/')) {
-                return url.split('album/')[1].split('.')[0];
+            if (url.includes('album/') || url.includes('albumDetail/')) {
+                return url.split(/album\/|albumDetail\//)[1].split('.')[0];
             }
             return null;
         }
 
-        static async getVkey(mid) {
+        static async getVkey(mid,fileMid=null) {
+            if(!fileMid){
+                fileMid = mid;
+            }
             try {
-                const resp = await fetch(`https://u.y.qq.com/cgi-bin/musicu.fcg?-=getplaysongvkey2682247447678878&g_tk=5381&loginUin=956581739&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%222796982635%22%2C%22songmid%22%3A%5B%22${mid}%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%22956581739%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A956581739%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D`);
-                // const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
+                //const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&guid=0&songmid=003a1tne1nSz1Y&filename=0.m4a');
                 //const resp = await fetch('https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?cid=205361747&songmid=003a1tne1nSz1Y&filename=0.m4a&guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220');
+                // const resp = await fetch(`https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?g_tk=5381&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0&cid=205361747&uin=0&songmid=${mid}&filename=F000${fileMid}.flac&guid=${guid}`);
+                const resp = await fetch('https://u.y.qq.com/cgi-bin/musicu.fcg?data=' +
+                                         encodeURIComponent(JSON.stringify({
+                    // req: {
+                    // 	method: 'GetCdnDispatch',
+                    // 	module: 'CDN.SrfCdnDispatchServer',
+                    // 	param: {
+                    // 		calltype: 0,
+                    // 		guid: '7332953645',
+                    // 		userip: ''
+                    // 	}
+                    // },
+                    req_0: {
+                        module: 'vkey.GetVkeyServer',
+                        method: 'CgiGetVkey',
+                        param: {
+                            guid: '7332953645',
+                            loginflag: 1,
+                            filename: [fileMid+".ape"],
+                            songmid: [mid],
+                            songtype: [0],
+                            uin:0,//cookie uin
+                            platform: '20'
+                        }
+                    }
+                })));
                 const json = await resp.json();
+                console.info(json);
                 return json.data.items[0].vkey;
             } catch (error) {
                 error.message = `获取 vkey 出错\n${error.message}`;
@@ -140,7 +169,7 @@
                     transMap = {};
 
                 for (let l of trans.split('\n')) {
-                    if (l.split(']').pop() === '//' || /^腾讯享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/, '').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
+                    if (l.split(']').pop() === '//' || /^腾讯.*享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/,'').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
                         continue;
                     }
                     let tagVals = lrcTagValue(l);
@@ -186,9 +215,15 @@
                         res.push(`${line}`);
                     }
                 }
-                // console.log(res);
-                // unescapeHTML 非js函数，小心使用
-                return res.join('\n').unescapeHTML();
+                console.log(res);
+
+                //unescapeHTML 非js函数，小心使用
+                //return res.join('\n').unescapeHTML();
+
+                // html 实体字符处理
+                var htmlElement = document.createElement('p');
+                htmlElement.innerHTML = res.join('\n');
+                return htmlElement.textContent;
             };
 
             //return fetch(`https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?pcachetime=${Date.now()}&songmid=${mid}&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`)
@@ -326,7 +361,7 @@
                 document.querySelector('.data__actions').append(aria2);
                 aria2.style.cssText = 'cursor:pointer';
                 aria2.addEventListener('click', async (e) => {
-                    const vkey = await QQMusicPlus.getVkey();
+                    const vkey = await QQMusicPlus.getVkey(json.songinfo.data.track_info.file.media_mid);
                     let s = '';
                     let url = `http://dl.stream.qqmusic.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`;
                     // let url = `http://mobileoc.music.tc.qq.com/F000${json.songinfo.data.track_info.file.media_mid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`;
@@ -427,9 +462,9 @@
                 var aria2 = document.createElement('a');
                 aria2.className = 'mod_btn';
                 aria2.innerText = 'Aria2 RPC';
-                document.querySelector('.data__actions').append(aria2);
+                document.querySelector('.data__actions')&&document.querySelector('.data__actions').append(aria2);
                 aria2.addEventListener('click', async (e) => {
-                    const vkey = await QQMusicPlus.getVkey();
+                    const vkey = await QQMusicPlus.getVkey(json.data.list[i].strMediaMid);
                     let s = '';
                     for (let i in json.data.list) {
                         if (json.data.list[i].sizeflac) {
@@ -471,14 +506,16 @@
                         let flacIcon = document.createElement('i');
                         flacIcon.style.cssText = 'text-transform: uppercase;border: 1px solid #31c27c; padding: 1px 4px; font-size: 7px; border-radius: 4px; color: #34c47e; cursor: pointer; position: relative; top: 4px; user-select: none; line-height: 50px; margin-right: 4px; font-family: monospace;';
                         flacIcon.textContent = 'flac';
-                        for (let i of json.data.list) {
+                        json.data.list.forEach( (value, index, array)=>{
+                            let i = value;
                             if (i.sizeflac) {
-                                const con = document.querySelector(`li[mid="${i.songid}"]`).querySelector('div.songlist__songname');
+                                //const con = document.querySelector(`li[mid="${i.songid}"]`).querySelector('div.songlist__songname');
+                                const con = document.querySelector(`ul.songlist__list>li:nth-of-type(${index + 1})`).querySelector('div.songlist__songname');
                                 const t = flacIcon.cloneNode(true);
                                 t.setAttribute('title', `通过 aria2 下载 ${i.songname}.flac`);
                                 con.insertAdjacentElement('afterbegin', t);
                                 t.addEventListener('click', async () => {
-                                    const vkey = await QQMusicPlus.getVkey();
+                                    const vkey = await QQMusicPlus.getVkey(i.strMediaMid);
                                     let url = `http://dl.stream.qqmusic.qq.com/F000${i.strMediaMid}.flac?guid=0&uin=0&fromtag=53&vkey=${vkey}`,
                                         //let url = `http://mobileoc.music.tc.qq.com/F000${i.strMediaMid}.flac?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&fromtag=53&vkey=${vkey}`,
                                         name = `${i.songname}.flac`.replace(/[<>:"/\\|?*]/g, ''); // Remove illegal characters
@@ -509,7 +546,7 @@
                                     }
                                 });
                             }
-                        }
+                        })
                     } catch (e) {
                         console.log(e);
                     }
@@ -527,17 +564,62 @@
 
 
     const qmp = new QQMusicPlus();
+    let timer = null;
     document.addEventListener('readystatechange', (e) => {
         console.log(e.target.readyState);
         if (e.target.readyState == 'complete') {
-            if (location.pathname.startsWith('/n/yqq/album/')) {
-                qmp.albumHandle();
-            }
-            if (location.pathname.startsWith('/n/yqq/song/')) {
-                qmp.songHandle();
-            }
+            pageHandle();
         }
     });
+
+    function pageHandle(){
+        qmp.mid = QQMusicPlus.getMid();
+        if(timer){
+            clearInterval(timer);
+        }
+
+        if (location.pathname.startsWith('/n/yqq/album/')||location.pathname.startsWith('/n/ryqq/albumDetail/')) {
+            timer=setInterval(()=>{
+                if(document.querySelector('div.data__actions')){
+                    qmp.albumHandle();
+                    if(timer){
+                        clearInterval(timer);
+                    }
+                }
+            },1000)
+        }
+        if (location.pathname.startsWith('/n/yqq/song/')) {
+            timer=setInterval(()=>{
+                if(document.querySelector('div.data__actions')){
+                    qmp.songHandle();
+                    if(timer){
+                        clearInterval(timer);
+                    }
+                }
+            },1000)
+        }
+    }
+    // capture the location at page load
+    let currentLocation = document.location.href;
+
+    const observer = new MutationObserver((mutationList) => {
+        if (currentLocation !== document.location.href) {
+            // location changed!
+            currentLocation = document.location.href;
+            console.log(currentLocation);
+            pageHandle();
+            // (do your event logic here)
+        }
+    });
+
+    observer.observe(
+        document.getElementById('app'),
+        {
+            childList: true,
+
+            // important for performance
+            subtree: false
+        });
 
 
 })();

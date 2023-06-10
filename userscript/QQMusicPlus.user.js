@@ -169,7 +169,7 @@
                     transMap = {};
 
                 for (let l of trans.split('\n')) {
-                    if (l.split(']').pop() === '//' || /^腾讯.*享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/,'').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
+                    if (l.split(']').pop() === '//' || /^(腾讯|QQ音乐).*享有本{0,1}翻译作品的著作权$/.test(l.replace(/^\[[\d.:\]]*\]/,'').trim()) || /^\[[\d.:\]]*\]\s*$/.test(l)) {
                         continue;
                     }
                     let tagVals = lrcTagValue(l);

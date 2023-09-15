@@ -1,0 +1,14 @@
+! 网易云网页版 行为收集
+||sentry.music.163.com/wapm/api/sdk/collect
+||music.163.com/weapi/feedback/weblog
+
+! 知乎 行为收集
+||apm.zhihu.com/collector/
+
+! https://m.weathercn.com/daily-weather-forecast.do?partner=1000001067_hfaw&id=2332944&language=zh-cn&p_source=&p_type=jump&day=0&datasource=2&infoEnable=true&ver=13011000
+m.weathercn.com###news-con
+
+! 小众软件首页广告
+www.appinn.com##.thecategory > [href="https://www.appinn.com/category/subject/ad-subject/"]:upward(div.post-box)
+!www.appinn.com##section.clearfix.featured-section:has-text("FD")
+www.appinn.com##section.clearfix.featured-section:has(.thecategory:has-text("FD"))

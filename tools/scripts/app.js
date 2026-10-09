@@ -1,201 +1,252 @@
-'use strict';
-const toolList = [
-    {
-        name: "AdBlock Hosts Sort",
-        description: "sort and group adblock hosts entries",
-        hash: "#hostssort",
-        src: "./hosts.js",
-    },
-    {
-        name: "FlacMate",
-        description: "show a FLAC file's metadata blocks",
-        hash: "#flacmate",
-        src: "./flacmeta.js",
-    },
-    {
-        name: "Password Generator",
-        description: "generate random passwords with a secure RNG",
-        hash: "#password-generator",
-        src: "./generator.js",
-    },
-    {
-        name: "X-APM to IFW",
-        description: "convert an X-APM export into IFW rules",
-        hash: "#xamp2ifw",
-        src: "./ifw.js",
-    },
-    {
-        // 独立子应用（不在本 SPA 内）：带 url 的条目直接跳转，不做 hash 路由
-        name: "ScanLike",
-        description: "把 PDF / Word / Excel / PPT / 图片变成逼真的扫描件，纯本地处理，可离线",
-        url: "./scanlike/",
-    },
-];
+/**
+ * 界面外壳：分类导航 + 搜索 + 卡片网格 + hash 路由。
+ *
+ * 路由刻意用原生 <a href="#id"> + hashchange，不用 pushState ——
+ * 一次点击只产生一条历史记录，前进后退天然可用，卡片本身也是可聚焦的链接。
+ */
+import { CATEGORIES, TOOLS, findTool } from './registry.js';
+import { el, toast, button } from './ui.js';
 
+const main = document.getElementById('main');
+const catsBar = document.getElementById('cats');
+const searchBox = document.getElementById('search');
+const searchClear = document.getElementById('searchClear');
+const themeBtn = document.getElementById('btnTheme');
 
-const tools = {
-    title: "Tools PWA",
-    iconClass: null,
-    description: "tools list",
+const state = {
+  cat: 'all',
+  query: '',
+  module: null,      // 当前工具模块
+  toolDef: null,
+  cleanup: null,
 };
 
-const index = {
-    name: "Tools PWA",
-    description: "a simple tool set by Gitiy",
-    hash: "#",
-};
+/* ---------------------------------------------------------- 主题 */
 
-tools.createListItem = function ({ name, description, hash, src, url, rest, }) {
-    // console.debug(name, description, hash, src, rest);
-    let item = document.createElement("article"),
-        titleNode = document.createElement("h1"),
-        descriptionNode = document.createElement("p"),
-        contains = document.createElement('a');
-    item.appendChild(contains);
-    contains.appendChild(titleNode);
-    contains.appendChild(descriptionNode);
+const THEME_KEY = 'tools.theme';
+const THEME_ORDER = ['', 'light', 'dark'];
+const THEME_LABEL = { '': '跟随系统', light: '亮色', dark: '暗色' };
 
-    contains.setAttribute('href', url || hash);
-
-    item.className = "card tool-item";
-    titleNode.className = "tool-name";
-    descriptionNode.className = "tool-description";
-
-    titleNode.textContent = name;
-    descriptionNode.textContent = description;
-
-    return item;
+function currentTheme() {
+  return document.documentElement.dataset.theme || '';
 }
 
-tools.init = function (app) {
-    // console.log("tools",this, this.title);
-    // console.log(app.main.childNodes);
-    // app.main.childNodes.forEach((v) => { v.remove(); });
-    app.main.innerHTML = '';
-
-    let df = document.createDocumentFragment();
-    for (let i of toolList) {
-        let item = tools.createListItem(i);
-
-        // 带 url 的是独立子应用，走原生跳转，不参与本 SPA 的 hash 路由
-        if (!i.url) {
-            item.addEventListener("click", (e) => {
-                // console.log(e);
-                app.route(i);
-            });
-        }
-
-        df.appendChild(item);
-    }
-    app.main.appendChild(df);
-    app.main.className = "main";
-    app.main.classList.add("toollist")
-};
-
-tools.exit = function (app) {
-    app.main.classList.remove("toollist")
+function applyTheme(t) {
+  if (t) document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  try {
+    if (t) localStorage.setItem(THEME_KEY, t);
+    else localStorage.removeItem(THEME_KEY);
+  } catch { /* 隐私模式忽略 */ }
+  themeBtn.title = `主题：${THEME_LABEL[t]}（点击切换）`;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    const dark = t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches);
+    meta.setAttribute('content', dark ? '#14161a' : '#ececec');
+  }
 }
 
-let app = {
-    shellName: document.querySelector(".header .header-title"),
-    main: document.querySelector("main.main"),
-    icon: document.querySelector("i.icon"),
-};
+themeBtn.addEventListener('click', () => {
+  const i = THEME_ORDER.indexOf(currentTheme());
+  applyTheme(THEME_ORDER[(i + 1) % THEME_ORDER.length]);
+  toast(`主题：${THEME_LABEL[currentTheme()]}`);
+});
 
-app.route = function (route, needPushState = true) {
-    // console.log(route)
-    if (!route) {
-        return
-    }
-    app.currentHash = route.hash;
-    if (route.hash === '#') {
-        if (app.module) {
-            app.module.tool.exit(this);
-        }
-        if (window.location.hash !== route.hash && needPushState) {
-            window.history.pushState(route, route.name, route.hash);
-        }
-        app.init({ tool: tools });
-        return;
-    }
-    import(route.src).then((module) => {
-        if (app.module) {
-            app.module.tool.exit(this);
-        }
-        if (window.location.hash !== route.hash && needPushState) {
-            window.history.pushState(route, route.name, route.hash);
-        }
-        app.init(module);
-    }).catch((err) => {
-        // 模块加载失败（离线且未缓存、404 等）时原来完全静默，界面停在上一个工具
-        console.error('加载工具模块失败', route.src, err);
-        app.main.innerHTML = '';
-        const tip = document.createElement('article');
-        tip.className = 'card error-card';
-        const p = document.createElement('p');
-        p.textContent = `无法加载「${route.name}」：${err.message}。若是离线状态，请先联网打开一次。`;
-        tip.appendChild(p);
-        app.main.appendChild(tip);
-    });
+/* ---------------------------------------------------------- 卡片网格 */
+
+function matchQuery(tool, q) {
+  if (!q) return true;
+  const hay = [tool.name, tool.desc, tool.keywords || '', tool.id].join(' ').toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
 }
 
-app.init = function (module) {
-    // console.log(this, module);
-    app.module = module;
-    document.title = module.tool.title;
-    this.shellName.textContent = module.tool.title;
-    this.icon.className = "icon";
-    if (module.tool.iconClass) {
-        this.icon.classList.add(module.tool.iconClass);
-    }
-    module.tool.init(this);
+function toolCard(tool) {
+  const href = tool.url || '#' + tool.id;
+  const a = el('a', {
+    class: 'card tool-card' + (tool.url ? ' external' : ''),
+    href,
+    dataset: { id: tool.id, cat: tool.cat },
+    ...(tool.url ? { target: '_blank', rel: 'noopener' } : {}),
+  },
+    el('span', { class: 'tool-card-icon', text: tool.icon || '🔧' }),
+    el('span', { class: 'tool-card-body' },
+      el('span', { class: 'tool-card-name' }, tool.name,
+        tool.badge ? el('span', { class: 'badge ' + tool.badge, text: tool.badge === 'hot' ? 'HOT' : 'NEW' }) : null),
+      el('span', { class: 'tool-card-desc', text: tool.desc }),
+    ),
+    tool.url ? el('span', { class: 'tool-card-arrow', text: '↗' }) : null,
+  );
+  return a;
 }
 
-window.addEventListener("popstate", (e) => {
-    // console.log(e.state);
-    app.route(e.state, false);
-}, false);
+function renderGrid() {
+  const list = TOOLS.filter((t) => (state.cat === 'all' || t.cat === state.cat) && matchQuery(t, state.query));
 
-// 直接改地址栏的 hash（或从外部链接进入）原来不会切换工具，
-// 因为只有 popstate 和首屏 readystatechange 两个入口
-window.addEventListener("hashchange", () => {
-    if (location.hash === app.currentHash) return;   // 由 app.route 自己触发的，忽略
-    const i = toolList.findIndex((x) => x.hash === location.hash);
-    if (i !== -1) {
-        app.route(toolList[i], false);
-    } else if (!location.hash) {
-        app.route(index, false);
+  main.replaceChildren();
+  catsBar.hidden = false;
+
+  if (!list.length) {
+    main.append(el('div', { class: 'empty-state' },
+      el('p', { text: `没有找到匹配「${state.query}」的工具` }),
+      button('清空搜索', () => { searchBox.value = ''; state.query = ''; searchClear.hidden = true; renderGrid(); }, { small: true }),
+    ));
+    return;
+  }
+
+  const groups = new Map();
+  for (const t of list) {
+    if (!groups.has(t.cat)) groups.set(t.cat, []);
+    groups.get(t.cat).push(t);
+  }
+
+  for (const [catId, items] of groups) {
+    const cat = CATEGORIES.find((c) => c.id === catId);
+    if (state.cat === 'all') {
+      main.append(el('h2', { class: 'section-title', text: cat ? cat.name : catId }));
     }
-}, false);
+    main.append(el('div', { class: 'grid-cards' }, items.map(toolCard)));
+  }
+}
 
-app.icon.addEventListener("click", (e) => {
-    if (app.icon.classList.contains("back")) {
-        history.back();
+function renderCats() {
+  catsBar.replaceChildren();
+  const counts = new Map();
+  for (const t of TOOLS) counts.set(t.cat, (counts.get(t.cat) || 0) + 1);
+
+  for (const c of CATEGORIES) {
+    const n = c.id === 'all' ? TOOLS.length : counts.get(c.id) || 0;
+    if (!n) continue;
+    catsBar.append(el('button', {
+      type: 'button',
+      class: 'cat' + (state.cat === c.id ? ' active' : ''),
+      dataset: { cat: c.id },
+      onclick: () => {
+        state.cat = c.id;
+        renderCats();
+        renderGrid();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+    }, el('span', { text: c.name }), el('span', { class: 'cat-n', text: String(n) })));
+  }
+}
+
+/* ---------------------------------------------------------- 路由 */
+
+function teardown() {
+  if (state.cleanup) {
+    try { state.cleanup(); } catch (e) { console.error(e); }
+    state.cleanup = null;
+  }
+  if (state.module && typeof state.module.tool.exit === 'function') {
+    try { state.module.tool.exit({ main }); } catch (e) { console.error(e); }
+  }
+  state.module = null;
+  state.toolDef = null;
+}
+
+function renderError(title, message, retry) {
+  main.replaceChildren(el('div', { class: 'tool-page' },
+    el('div', { class: 'card error-card' },
+      el('h3', { text: title }),
+      el('p', { text: message }),
+      retry ? el('div', { class: 'actions' }, button('重试', retry, { primary: true })) : null,
+    ),
+  ));
+}
+
+async function renderTool(def) {
+  state.toolDef = def;
+  main.replaceChildren(el('div', { class: 'loading', text: '正在加载工具…' }));
+  catsBar.hidden = true;
+
+  try {
+    const mod = await import(def.module);
+    if (!mod.tool || typeof mod.tool.init !== 'function') {
+      throw new Error('模块没有导出 tool.init');
     }
-}, false);
+    state.module = mod;
+    main.replaceChildren();
 
-document.addEventListener('readystatechange', (e) => {
-    if (document.readyState === 'complete') {
-        console.log('readystatechange:', location.hash)
-        const i = toolList.findIndex(x => x.hash === location.hash)
-        if (i !== -1) {
-            app.route(toolList[i], false);
-        } else {
-            app.route(index);
-            // app.init({tool:tools});
-        }
-    }
-})
+    // 工具内容单独放一层容器：旧工具会直接改写 innerHTML，不能让它把返回条也清掉
+    const view = el('div', { class: 'tool-view' });
+    main.append(
+      el('div', { class: 'tool-nav' },
+        el('a', { class: 'back-link', href: '#', text: '← 返回工具箱' }),
+        el('span', { class: 'crumb', text: def.name }),
+      ),
+      view,
+    );
 
-// window.addEventListener('load', (e) => {
-//     console.log('load:', location.hash)
-// })
+    const app = { main: view, toolDef: def, go: (hash) => { location.hash = hash; } };
+    const out = mod.tool.init(app);
+    if (typeof out === 'function') state.cleanup = out;
+  } catch (err) {
+    console.error('加载工具失败', def.module, err);
+    renderError(`无法加载「${def.name}」`, err.message || String(err), () => renderTool(def));
+  }
+}
 
-window.addEventListener("load", function (e) {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-            .register('service-worker.js')
-            .then((registion) => { console.log('Service Worker Registered', registion.scope); });
-    }
-}, false);
-// export { tools as tool };
+function route() {
+  const id = decodeURIComponent(location.hash.replace(/^#/, ''));
+  if (!id) {
+    teardown();
+    renderGrid();
+    return;
+  }
+  const def = findTool(id);
+  if (!def) {
+    teardown();
+    renderError('没有这个工具', `找不到 id 为「${id}」的工具，可能链接已过期。`, () => { location.hash = ''; });
+    return;
+  }
+  if (state.toolDef && state.toolDef.id === id) return;   // 同一个工具，不重复初始化
+  teardown();
+  renderTool(def);
+}
+
+/* ---------------------------------------------------------- 搜索 */
+
+let searchTimer = null;
+searchBox.addEventListener('input', () => {
+  state.query = searchBox.value.trim();
+  searchClear.hidden = !state.query;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    if (location.hash) location.hash = '';   // 搜索时回到网格
+    else renderGrid();
+  }, 120);
+});
+searchClear.addEventListener('click', () => {
+  searchBox.value = '';
+  state.query = '';
+  searchClear.hidden = true;
+  renderGrid();
+  searchBox.focus();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== searchBox && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) {
+    e.preventDefault();
+    searchBox.focus();
+  }
+  if (e.key === 'Escape' && document.activeElement === searchBox && searchBox.value) {
+    searchBox.value = '';
+    state.query = '';
+    searchClear.hidden = true;
+    renderGrid();
+  }
+});
+
+/* ---------------------------------------------------------- 启动 */
+
+window.addEventListener('hashchange', route);
+
+applyTheme(currentTheme());
+renderCats();
+route();
+
+// 供自测脚本使用
+window.__tools = { state, TOOLS, CATEGORIES, renderGrid, route };
+
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('./service-worker.js').catch(() => { });
+}

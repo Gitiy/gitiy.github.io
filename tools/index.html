@@ -1,41 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tools PWA</title>
-    <meta name="description" content="A small set of offline-capable browser tools by Gitiy.">
+    <title>Tools · 本地工具箱</title>
+    <meta name="description" content="纯本地运行的在线工具箱：PDF 合并拆分、PDF 转 Word/Excel/PPT、Office 转 PDF、图片与文本处理。文件不上传，可离线使用。">
     <meta name="theme-color" content="#ececec">
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Tools PWA">
-    <meta name="msapplication-TileImage" content="images/icons/icon-64x64.png">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <link rel="shortcut icon" href="images/icons/icon-32x32.png">
+    <link rel="icon" href="images/icons/icon-32x32.png">
+    <link rel="apple-touch-icon" href="images/icons/icon-128x128.png">
     <link rel="stylesheet" type="text/css" href="styles/index.css">
+    <script>
+        // 在首屏渲染前定好主题，避免亮/暗切换时闪一下
+        (function () {
+            try {
+                var t = localStorage.getItem('tools.theme');
+                if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body id="app">
     <header class="header">
-        <i class="icon"></i>
-        <h2 class="header-title">Tools PWA</h2>
+        <a class="brand" href="#">
+            <span class="brand-icon">🧰</span>
+            <span class="brand-name">Tools</span>
+        </a>
+        <div class="search">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input id="search" type="search" placeholder="搜索工具，例如：合并 / 转 Word / 去重" aria-label="搜索工具">
+            <button id="searchClear" class="search-clear" hidden aria-label="清空搜索">✕</button>
+        </div>
+        <div class="header-actions">
+            <button id="btnTheme" class="icon-btn" title="切换主题（跟随系统 / 亮色 / 暗色）" aria-label="切换主题">◐</button>
+        </div>
     </header>
 
-    <main class="main toollists">
-        <article class="card tool-item template">
-            <h1 class="tool-name">Tool's name</h1>
-            <p class="tool-description">tool's description</p>
-        </article>
+    <nav class="cats" id="cats" aria-label="工具分类"></nav>
 
-    </main>
+    <main class="main" id="main"></main>
 
     <footer class="footer">
-        Tools By <a href="//github.com/gitiy">Gitiy</a>
+        <span>纯本地处理 · 文件不上传 · 可离线使用</span>
+        <a href="https://github.com/Gitiy" target="_blank" rel="noopener">Gitiy</a>
     </footer>
-    <script type="text/javascript" src="scripts/app.js"></script>
+
+    <script type="module" src="scripts/app.js"></script>
 </body>
 
 </html>

@@ -1,6 +1,14 @@
 {
     "name": "Tools",
     "short_name": "Tools",
+    "description": "A small set of offline-capable browser tools by Gitiy.",
+    "id": "./",
+    "start_url": "./",
+    "scope": "./",
+    "lang": "en",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ececec",
     "icons": [
         {
             "src": "images/icons/icon-32x32.png",
@@ -27,9 +35,5 @@
             "sizes": "512x512",
             "type": "image/png"
         }
-    ],
-    "start_url": "index.html",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#ececec"
+    ]
 }

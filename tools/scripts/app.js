@@ -1,28 +1,34 @@
 'use strict';
 const toolList = [
     {
-        name: "AdBolck Hosts Sort",
-        description: "a simple tool to sort adblock hosts items",
+        name: "AdBlock Hosts Sort",
+        description: "sort and group adblock hosts entries",
         hash: "#hostssort",
         src: "./hosts.js",
     },
     {
         name: "FlacMate",
-        description: "a simple tool to show flac's matedata",
+        description: "show a FLAC file's metadata blocks",
         hash: "#flacmate",
         src: "./flacmeta.js",
     },
     {
         name: "Password Generator",
-        description: "a simple tool to generator password",
+        description: "generate random passwords with a secure RNG",
         hash: "#password-generator",
         src: "./generator.js",
     },
     {
-        name: "X-AMP To IFW",
-        description: "a simple tool to convert X-APM config to IFW",
+        name: "X-APM to IFW",
+        description: "convert an X-APM export into IFW rules",
         hash: "#xamp2ifw",
         src: "./ifw.js",
+    },
+    {
+        // 独立子应用（不在本 SPA 内）：带 url 的条目直接跳转，不做 hash 路由
+        name: "ScanLike",
+        description: "把 PDF / Word / Excel / PPT / 图片变成逼真的扫描件，纯本地处理，可离线",
+        url: "./scanlike/",
     },
 ];
 
@@ -39,7 +45,7 @@ const index = {
     hash: "#",
 };
 
-tools.createListItem = function ({ name, description, hash, src, rest, }) {
+tools.createListItem = function ({ name, description, hash, src, url, rest, }) {
     // console.debug(name, description, hash, src, rest);
     let item = document.createElement("article"),
         titleNode = document.createElement("h1"),
@@ -49,7 +55,7 @@ tools.createListItem = function ({ name, description, hash, src, rest, }) {
     contains.appendChild(titleNode);
     contains.appendChild(descriptionNode);
 
-    contains.setAttribute('href', hash);
+    contains.setAttribute('href', url || hash);
 
     item.className = "card tool-item";
     titleNode.className = "tool-name";
@@ -71,10 +77,13 @@ tools.init = function (app) {
     for (let i of toolList) {
         let item = tools.createListItem(i);
 
-        item.addEventListener("click", (e) => {
-            // console.log(e);
-            app.route(i);
-        });
+        // 带 url 的是独立子应用，走原生跳转，不参与本 SPA 的 hash 路由
+        if (!i.url) {
+            item.addEventListener("click", (e) => {
+                // console.log(e);
+                app.route(i);
+            });
+        }
 
         df.appendChild(item);
     }
@@ -98,6 +107,7 @@ app.route = function (route, needPushState = true) {
     if (!route) {
         return
     }
+    app.currentHash = route.hash;
     if (route.hash === '#') {
         if (app.module) {
             app.module.tool.exit(this);
@@ -116,6 +126,16 @@ app.route = function (route, needPushState = true) {
             window.history.pushState(route, route.name, route.hash);
         }
         app.init(module);
+    }).catch((err) => {
+        // 模块加载失败（离线且未缓存、404 等）时原来完全静默，界面停在上一个工具
+        console.error('加载工具模块失败', route.src, err);
+        app.main.innerHTML = '';
+        const tip = document.createElement('article');
+        tip.className = 'card error-card';
+        const p = document.createElement('p');
+        p.textContent = `无法加载「${route.name}」：${err.message}。若是离线状态，请先联网打开一次。`;
+        tip.appendChild(p);
+        app.main.appendChild(tip);
     });
 }
 
@@ -134,6 +154,18 @@ app.init = function (module) {
 window.addEventListener("popstate", (e) => {
     // console.log(e.state);
     app.route(e.state, false);
+}, false);
+
+// 直接改地址栏的 hash（或从外部链接进入）原来不会切换工具，
+// 因为只有 popstate 和首屏 readystatechange 两个入口
+window.addEventListener("hashchange", () => {
+    if (location.hash === app.currentHash) return;   // 由 app.route 自己触发的，忽略
+    const i = toolList.findIndex((x) => x.hash === location.hash);
+    if (i !== -1) {
+        app.route(toolList[i], false);
+    } else if (!location.hash) {
+        app.route(index, false);
+    }
 }, false);
 
 app.icon.addEventListener("click", (e) => {

@@ -1,3 +1,5 @@
+import { copyWithFeedback, toast } from './ui.js';
+
 let generator = {
     iconClass: "back",
     title: "Password Generator",
@@ -8,131 +10,184 @@ const data = {
     lower: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
     upper: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
     special: ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"],
-},
-    localStorageKey = "records";
+};
 
+const LS_KEY = "records";
+const LEN_MIN = 4;
+const LEN_MAX = 128;
 
-generator.gen = function (min, max) {
+/* ---------------------------------------------------------- 安全随机 */
 
-    min = parseInt(min);
-    max = parseInt(max);
+const hasSecureRandom = typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function';
+let warnedInsecure = false;
 
-    //可以生成随机密码的相关数组
-    var config = []
-    var arr = [];
-    // Object.keys(data).forEach((v, i, a) => (config = config.concat(data[v])));
-
-    //先放入一个必须存在的
-    Object.entries(generator.ui).map(([k, v], i, raw) => {
-        if (!(v instanceof HTMLInputElement)) {
-            return;
+/** 返回 [0, maxExclusive) 的随机整数。用拒绝采样避免取模偏置。 */
+function randomInt(maxExclusive) {
+    if (maxExclusive <= 1) return 0;
+    if (!hasSecureRandom) {
+        // 密码生成器不该用可预测的随机源，这里只作为兜底并明确告警
+        if (!warnedInsecure) {
+            warnedInsecure = true;
+            toast('当前环境不支持安全随机数，已退化为弱随机', 'error');
         }
-        if (v.checked) {
-            config = config.concat(data[k]);
-            //随机从数组中抽出一个
-            arr.push((arr => arr[Math.floor(Math.random() * arr.length)])(data[k]))
-        }
-    });
-    // console.log(config,arr);
+        return Math.floor(Math.random() * maxExclusive);
+    }
+    const range = 0x100000000;
+    const limit = range - (range % maxExclusive);
+    const buf = new Uint32Array(1);
+    let v;
+    do {
+        crypto.getRandomValues(buf);
+        v = buf[0];
+    } while (v >= limit);
+    return v % maxExclusive;
+}
 
-    //获取需要生成的长度
-    var len = min + Math.floor(Math.random() * (max - min + 1));
-    console.log(min, "~", max, ":", len);
+const pick = (arr) => arr[randomInt(arr.length)];
 
-    for (var i = 4; i < len; i++) {
-        //从数组里面抽出一个
-        arr.push(config[Math.floor(Math.random() * config.length)]);
+/** Fisher-Yates 洗牌（原地） */
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = randomInt(i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+/* ---------------------------------------------------------- 生成 */
+
+generator.readOptions = function () {
+    const ui = generator.ui;
+    const sets = [];
+    for (const key of ['upper', 'lower', 'digital', 'special']) {
+        if (ui[key] && ui[key].checked) sets.push({ key, chars: data[key] });
     }
 
-    //乱序
-    var newArr = [];
-    for (var j = 0; j < len; j++) {
-        newArr.push(arr.splice(Math.random() * arr.length, 1)[0]);
+    let min = parseInt(ui.min.value, 10);
+    let max = parseInt(ui.max.value, 10);
+    if (!Number.isFinite(min)) min = 12;
+    if (!Number.isFinite(max)) max = Math.max(min, 20);
+    if (min > max) [min, max] = [max, min];          // 原来的实现没管 min > max
+    min = Math.min(Math.max(min, LEN_MIN), LEN_MAX);
+    max = Math.min(Math.max(max, LEN_MIN), LEN_MAX);
+
+    return { sets, min, max };
+};
+
+generator.gen = function () {
+    const { sets, min, max } = generator.readOptions();
+
+    if (!sets.length) {
+        // 原来这里会静默返回空密码，还把它存进历史记录
+        toast('请至少勾选一种字符类型', 'error');
+        generator.ui.currentPassword.textContent = '请至少勾选一种字符类型';
+        return null;
     }
 
-    const record = newArr.join("");
-    document.querySelector(".flex-row.flex-full.password-generatored").innerText = record;
+    // 长度要在 [min, max] 内随机，但不能短于"每种字符各取一个"的个数
+    const len = Math.max(sets.length, min + randomInt(max - min + 1));
+
+    // 每种勾选的字符类型至少出现一次
+    const arr = sets.map((s) => pick(s.chars));
+    // 其余位置从合并后的字符池里取（原来是写死的 i = 4，
+    // 只勾 1~3 种类型时长度会偏短）
+    const pool = sets.flatMap((s) => s.chars);
+    while (arr.length < len) arr.push(pick(pool));
+
+    const record = shuffle(arr).join("");
+    generator.ui.currentPassword.textContent = record;
     generator.addRecord(record);
     return record;
-}
+};
 
-generator.copy = function (text, e) {
-    let textField = document.createElement("input");
-    let currentFocus = document.activeElement;
-    textField.style.cssText = "position: fixed; z-index: -2;";
-    document.body.appendChild(textField);
-    textField.value = text;
-    textField.focus();
-    textField.setSelectionRange(0, textField.value.length);
-    document.execCommand("copy", true);
-    console.log("已复制", text);
-    currentFocus.focus();
-    textField.remove();
-}
+/* ---------------------------------------------------------- 历史记录 */
 
-generator.addRecordUI = function (index, record) {
-    let con = document.createElement("article"),
-        entry = document.createElement("span"),
-        copyBtn = document.createElement("span"),
-        delBtn = document.createElement("span");
-
-    con.className = "card flex-row";
-    entry.className = "password-entry flex-full";
-    copyBtn.className = "button justify-self-end";
-    delBtn.className = "button justify-self-end";
-
-    entry.textContent = record;
-    copyBtn.textContent = "COPY";
-    delBtn.textContent = "DEL";
-
-    con.setAttribute('data-index', index)
-
-    copyBtn.addEventListener("click", e => generator.copy.call(con, record, e), false);
-    delBtn.addEventListener("click", e => generator.removeRecord.call(con, index, record), false)
-    con.appendChild(entry);
-    con.appendChild(copyBtn);
-    con.appendChild(delBtn);
-
-    generator.ui.panel.insertAdjacentElement('afterend', con);
-}
-
-generator.removeRecord = function (index, record) {
-    let records = JSON.parse(localStorage.getItem(localStorageKey));
-    if (!records || !(records instanceof Array)) {
-        records = [];
-        return;
+/** 读取历史记录，兼容旧格式（纯字符串数组） */
+function loadRecords() {
+    let raw;
+    try {
+        raw = JSON.parse(localStorage.getItem(LS_KEY));
+    } catch {
+        raw = null;
     }
-    if (records[index] = record) {
-        delete records[index];
-        records = records.filter(x => x);
-        localStorage.setItem(localStorageKey, JSON.stringify(records));
-        console.info("del:", record);
-        this.remove();
-    } else {
-        console.log("NOT FOUND:", record);
-    }
-
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .map((r, i) => (typeof r === "string" ? { id: "old" + i, value: r } : r))
+        .filter((r) => r && typeof r.value === "string");
 }
+
+function saveRecords(records) {
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify(records));
+    } catch { /* 隐私模式下可能写不了，忽略 */ }
+}
+
+let nextId = Date.now();
 
 generator.addRecord = function (record) {
-    let records = JSON.parse(localStorage.getItem(localStorageKey));
+    const records = loadRecords();
+    records.unshift({ id: "r" + (++nextId), value: record });   // 新的在最前
+    saveRecords(records);
+    generator.renderRecords();
+};
 
-    if (!records || !(records instanceof Array)) {
-        records = [];
+/**
+ * 删除一条记录。
+ * 原来按数组下标删除（data-index），删除后不重排，下标就失效了；
+ * 而且 `if (records[index] = record)` 是赋值不是比较，会删错条目。
+ * 现在用稳定 id。
+ */
+generator.removeRecord = function (id) {
+    const records = loadRecords();
+    const next = records.filter((r) => r.id !== id);
+    if (next.length === records.length) {
+        toast('这条记录已经不存在了', 'error');
     }
-    generator.addRecordUI(records.length, record);
-    records.push(record)
-    console.log(JSON.stringify(records))
-    localStorage.setItem(localStorageKey, JSON.stringify(records));
+    saveRecords(next);
+    generator.renderRecords();
+};
 
-}
+generator.clearRecords = function () {
+    saveRecords([]);
+    generator.renderRecords();
+};
 
-generator.listRecords = function () {
-    let records = JSON.parse(localStorage.getItem(localStorageKey));
-    for (let i in records) {
-        generator.addRecordUI(i, records[i]);
+generator.renderRecords = function () {
+    const host = generator.ui.recordList;
+    if (!host) return;
+    host.replaceChildren();
+    const records = loadRecords();
+    for (const r of records) {
+        const con = document.createElement("article");
+        const entry = document.createElement("span");
+        const copyBtn = document.createElement("button");
+        const delBtn = document.createElement("button");
+
+        con.className = "card flex-row";
+        entry.className = "password-entry flex-full";
+        copyBtn.type = "button";
+        delBtn.type = "button";
+        copyBtn.className = "button justify-self-end";
+        delBtn.className = "button justify-self-end";
+
+        entry.textContent = r.value;
+        copyBtn.textContent = "COPY";
+        delBtn.textContent = "DEL";
+        copyBtn.setAttribute("aria-label", "复制这条密码");
+        delBtn.setAttribute("aria-label", "删除这条密码");
+
+        copyBtn.addEventListener("click", () => copyWithFeedback(r.value, '已复制'));
+        delBtn.addEventListener("click", () => generator.removeRecord(r.id));
+
+        con.append(entry, copyBtn, delBtn);
+        host.append(con);
     }
-}
+    if (generator.ui.emptyHint) {
+        generator.ui.emptyHint.hidden = records.length > 0;
+    }
+};
+
+/* ---------------------------------------------------------- UI */
 
 generator.init = function (app) {
     const html = `<article class="card">
@@ -140,19 +195,23 @@ generator.init = function (app) {
         <label for="upper"><input type="checkbox" checked id="upper"><span class="button">[A-Z]</span></label>
         <label for="lower"><input type="checkbox" checked id="lower"><span class="button">[a-z]</span></label>
         <label for="digital"><input type="checkbox" checked id="digital"><span class="button">[0-9]</span></label>
-        <label for="special" title='~, !, @, #, $, %, ^, &, *, (, ), _, +'><input type="checkbox" checked id="special"><span class="button">[special]</span></label>
+        <label for="special" title='~, !, @, #, $, %, ^, &amp;, *, (, ), _, +'><input type="checkbox" checked id="special"><span class="button">[special]</span></label>
     </div>
-    <div class="flex-row flex-full justify-content-center password-generatored">点击Gen生成密码</div>
+    <div class="flex-row flex-full justify-content-center password-generatored" role="status" aria-live="polite">点击 Gen 生成密码</div>
     <div class="flex-row justify-content-end align-items-center">
         <span class="password-range">
-            <input type="number" id="min" min=6 value="12" placeholder="min">
-            - 
-            <input type="number" id="max" min=6 value="20" placeholder="max">
+            <label class="visually-hidden" for="min">最小长度</label>
+            <input type="number" id="min" min="4" max="128" value="12" placeholder="min">
+            -
+            <label class="visually-hidden" for="max">最大长度</label>
+            <input type="number" id="max" min="4" max="128" value="20" placeholder="max">
         </span>
-        <span id="gen" class="button">gen</span>
-        <span id="copy" class="button">copy</span>
+        <button type="button" id="gen" class="button">gen</button>
+        <button type="button" id="copy" class="button">copy</button>
     </div>
-</article>`;
+</article>
+<section class="record-list" id="recordList" aria-label="历史记录"></section>
+<p class="hint" id="recordHint">生成过的密码会保存在本机浏览器里（明文存储，请勿在公共设备上使用）。</p>`;
 
     if (app.main instanceof Element) {
         app.main.innerHTML = html;
@@ -167,22 +226,35 @@ generator.init = function (app) {
             max: document.getElementById("max"),
             btn: document.getElementById("gen"),
             copy: document.getElementById("copy"),
-            panel: document.querySelector('main.password-generator>.card'),
             currentPassword: document.querySelector(".password-generatored"),
+            recordList: document.getElementById("recordList"),
+            emptyHint: document.getElementById("recordHint"),
         };
 
-        generator.ui.btn.addEventListener("click", (e) => generator.gen.call(generator,
-            generator.ui.min.value, generator.ui.max.value), false);
+        generator.onGen = () => generator.gen();
+        generator.onCopy = () => {
+            const text = generator.ui.currentPassword.textContent;
+            if (!text || /请至少勾选|点击 Gen/.test(text)) {
+                toast('还没有可复制的密码', 'error');
+                return;
+            }
+            copyWithFeedback(text, '已复制');
+        };
 
-        generator.ui.copy.addEventListener("click", (e) => generator.copy.call(generator.ui.panel,
-            generator.ui.currentPassword.textContent, e), false)
-
-        generator.listRecords();
+        generator.ui.btn.addEventListener("click", generator.onGen);
+        generator.ui.copy.addEventListener("click", generator.onCopy);
+        generator.renderRecords();
     }
-}
-generator.exit = function(app){
+};
+
+generator.exit = function (app) {
+    const ui = generator.ui;
+    if (ui) {
+        ui.btn.removeEventListener("click", generator.onGen);
+        ui.copy.removeEventListener("click", generator.onCopy);
+    }
+    generator.ui = null;
     app.main.classList.remove("password-generator");
-}
+};
 
-
-export { generator as tool }
+export { generator as tool };

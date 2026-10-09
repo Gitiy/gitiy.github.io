@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ScanLike · 本地文档扫描效果生成器</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="icon" href="./icon-192.png" type="image/png" sizes="192x192">
+<!-- iOS 不认 SVG 的 apple-touch-icon，必须给 PNG -->
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link rel="stylesheet" href="styles.css">
+<script>
+  // 在首屏渲染前就定好主题，避免手动指定亮/暗时闪一下默认配色
+  (function () {
+    try {
+      var t = localStorage.getItem('scanlike.theme.v1');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <button id="btnMenu" class="icon-btn only-narrow" title="参数面板">☰</button>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <path d="M4 7V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V7M20 17v1.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V17"
+              fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <path d="M3 10.5h18v4H3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        <circle cx="17.6" cy="12.5" r="1.1" fill="currentColor"/>
+      </svg>
+      <div class="brand-text">
+        <h1>ScanLike</h1>
+        <span>PDF / Word / Excel / PPT / 图片 · 无水印 · 无限制</span>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="badge" id="netBadge">纯本地处理</span>
+      <button id="btnTheme" class="icon-btn" title="主题：跟随系统" aria-label="切换主题">◐</button>
+      <button id="btnAdd" class="btn">＋ 添加文件</button>
+      <button id="btnExport" class="btn primary">导出</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="scrim" class="scrim"></div>
+    <aside class="sidebar" id="sidebar">
+      <section class="block">
+        <div class="block-head"><h2>文件队列</h2><button id="btnClearFiles" class="link">清空</button></div>
+        <div id="fileList" class="file-list"></div>
+        <div id="dropHint" class="drop-hint">
+          <strong>拖拽文件到此处</strong>
+          <small>PDF · Word · Excel · PPT · 图片</small>
+          <small>支持批量 · 无体积与页数限制</small>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h2>预设</h2></div>
+        <div class="row">
+          <select id="presetSelect" class="grow"></select>
+          <button id="btnSavePreset" class="btn small">保存</button>
+          <button id="btnDelPreset" class="btn small ghost">删除</button>
+        </div>
+      </section>
+
+      <section class="block" id="overlayBlock">
+        <div class="block-head"><h2>签名 / 印章 / 水印</h2><button id="btnAddTextWm" class="link">＋ 文字水印</button></div>
+        <div class="row wrap">
+          <button id="btnSign" class="btn small">手写签名</button>
+          <button id="btnMakeSeal" class="btn small">生成印章</button>
+          <button id="btnUploadMark" class="btn small">上传图片</button>
+        </div>
+        <div id="overlayList" class="overlay-list"></div>
+        <div id="overlayParams" class="overlay-params hidden"></div>
+        <div class="assets-line">
+          <span id="assetsInfo">签名与印章会自动保存，刷新后仍可用</span>
+          <button id="btnClearAssets" class="link">清空</button>
+        </div>
+      </section>
+
+      <div id="settingsRoot"></div>
+
+      <section class="block">
+        <div class="row wrap">
+          <button id="btnReset" class="btn small ghost">恢复默认</button>
+          <button id="btnExportAll" class="btn small">导出全部</button>
+        </div>
+        <p class="tip">所有处理都在你的浏览器里完成，文件不会上传到任何服务器。</p>
+      </section>
+    </aside>
+
+    <section class="viewer">
+      <div class="viewer-bar">
+        <div class="seg" id="viewMode">
+          <button data-mode="side" class="on">并排</button>
+          <button data-mode="slider">滑动对比</button>
+          <button data-mode="processed">处理后</button>
+          <button data-mode="original">原始</button>
+        </div>
+        <div class="pager">
+          <button id="prevPage" class="btn tiny ghost">‹</button>
+          <input id="pageInput" type="number" min="1" value="1">
+          <span id="pageTotal">/ 0</span>
+          <button id="nextPage" class="btn tiny ghost">›</button>
+        </div>
+        <div class="zoom">
+          <label for="zoom">缩放</label>
+          <input id="zoom" type="range" min="40" max="170" value="100">
+          <span id="zoomVal">100%</span>
+        </div>
+        <button id="btnThumbs" class="btn tiny ghost" title="显示/隐藏页面缩略图">缩略图</button>
+      </div>
+
+      <div id="stage" class="stage">
+        <div id="empty" class="empty">
+          <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true">
+            <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <p>把 PDF / Word / Excel / PPT / 图片拖进来，或点右上角「添加文件」</p>
+          <p class="sub">也可以点击 <button id="btnAdd2" class="link">选择文件</button> · 全部在本机处理</p>
+        </div>
+
+        <div id="panes" class="panes hidden">
+          <div class="pane">
+            <div class="pane-label">原始</div>
+            <div class="canvas-wrap" id="wrapOriginal"></div>
+          </div>
+          <div class="pane">
+            <div class="pane-label">扫描效果 <span class="pane-hint" id="dragHint">可拖动签名/印章</span></div>
+            <div class="canvas-wrap" id="wrapProcessed"></div>
+          </div>
+        </div>
+
+        <div id="sliderCompare" class="slider-compare hidden">
+          <div class="canvas-wrap" id="wrapSliderOriginal"></div>
+          <div class="canvas-clip" id="clipProcessed"><div class="canvas-wrap" id="wrapSliderProcessed"></div></div>
+          <div class="divider" id="compareDivider"><span></span></div>
+        </div>
+      </div>
+
+      <div id="thumbs" class="thumbs hidden">
+        <div class="thumbs-inner" id="thumbsInner"></div>
+      </div>
+
+      <div class="statusbar">
+        <span id="statusText">就绪</span>
+        <span id="statusRight"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="overlay" class="overlay hidden">
+    <div class="modal">
+      <h3 id="ovTitle">正在导出…</h3>
+      <div class="bar"><div id="ovBar"></div></div>
+      <p id="ovText"></p>
+      <div class="row end"><button id="ovCancel" class="btn small ghost">取消</button></div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" multiple hidden
+         accept=".pdf,application/pdf,image/*,.docx,.docm,.dotx,.xlsx,.xlsm,.xls,.csv,.tsv,.pptx,.pptm,.potx">
+  <input type="file" id="markInput" hidden accept="image/png,image/jpeg,image/webp,image/gif">
+
+  <div id="dropOverlay" class="drop-overlay hidden">
+    <div class="drop-box">
+      <strong>松开即可添加</strong>
+      <small>PDF · Word · Excel · PPT · PNG / JPG / WebP / BMP / GIF</small>
+      <small id="dropReject" class="reject"></small>
+    </div>
+  </div>
+  <div id="toasts" class="toasts"></div>
+</div>
+
+<script src="./vendor/pdf-lib.min.js"></script>
+<script src="./vendor/jszip.min.js"></script>
+<script src="./vendor/docx-preview.min.js"></script>
+<script src="./vendor/xlsx.full.min.js"></script>
+<script src="./vendor/html-to-image.js"></script>
+<script>
+  // 直接双击 index.html（file://）时浏览器会因 CORS 拒绝加载 ES 模块，这里给出明确指引
+  if (location.protocol === 'file:') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;inset:0;z-index:99;background:#14161a;color:#e8ecf2;display:flex;align-items:center;justify-content:center;padding:40px;font:14px/1.8 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;';
+      d.innerHTML = '<div style="max-width:560px;background:#1a1d23;border:1px solid #2c313a;border-radius:12px;padding:26px 30px">' +
+        '<h2 style="margin:0 0 14px;font-size:17px">请通过本地服务打开本页面</h2>' +
+        '<p style="color:#a8b1bf;margin:0 0 12px">浏览器出于安全策略，禁止用 <code style="color:#5b9cff">file://</code> 方式加载本工具所需的模块与 PDF 渲染线程。</p>' +
+        '<p style="color:#a8b1bf;margin:0 0 12px">请回到本目录，双击运行 <b style="color:#e8ecf2">启动.bat</b>（Windows）或 <b style="color:#e8ecf2">start.sh</b>（macOS / Linux），浏览器会自动打开正确地址。</p>' +
+        '<p style="color:#6f7885;font-size:12.5px;margin:0">也可以手动执行：<code style="color:#5b9cff">python -m http.server 8765</code> 然后访问 http://127.0.0.1:8765/</p>' +
+        '</div>';
+      document.body.appendChild(d);
+    });
+  }
+</script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

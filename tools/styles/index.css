@@ -99,8 +99,12 @@ a.brand {
 }
 
 .brand-icon {
-    font-size: 1.4rem;
-    line-height: 1;
+    /* 单色字形，用 currentColor 上色，所以亮暗主题会自动跟着变 */
+    display: block;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: 0 0 auto;
+    color: var(--accent);
 }
 
 .brand-name {

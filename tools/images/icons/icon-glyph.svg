@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="56 55.5 400 400" width="512" height="512" role="img" aria-label="Tools">
+  <!--
+    顶栏用的单色字形。轮廓与 images/icons/icon.svg 完全一致（同一个工具箱），
+    差别只有两点：不带底色方块、颜色用 currentColor（亮暗主题自动跟随）。
+    接缝与锁扣用 mask 镂空，任何背景下都能透出底色，不用写死颜色。
+    视框按图形本身裁紧（512 画布里图形只占 72% 宽，直接用会显得比图标小一圈）。
+    改这里的话记得同步改 icon.svg，两者要保持同一个轮廓。
+  -->
+  <defs>
+    <mask id="toolsSeam">
+      <rect x="56" y="55.5" width="400" height="400" fill="#ffffff"/>
+      <rect x="72" y="258" width="368" height="13" fill="#000000"/>
+      <rect x="228" y="245" width="56" height="39" rx="11" fill="#000000"/>
+    </mask>
+  </defs>
+  <g fill="currentColor" stroke="currentColor" mask="url(#toolsSeam)">
+    <path d="M181 200 V182 A30 30 0 0 1 211 152 H301 A30 30 0 0 1 331 182 V200"
+          fill="none" stroke-width="34" stroke-linecap="round"/>
+    <rect x="72" y="186" width="368" height="190" rx="30" stroke="none"/>
+  </g>
+</svg>

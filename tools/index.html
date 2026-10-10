@@ -13,6 +13,8 @@
     <link rel="icon" type="image/svg+xml" href="images/icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="images/icons/icon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/icons/icon-180x180.png">
+    <!-- Safari 固定标签页用的单色图标，正好是顶栏那个字形 -->
+    <link rel="mask-icon" href="images/icons/icon-glyph.svg" color="#5f9ea0">
     <link rel="stylesheet" type="text/css" href="styles/index.css">
     <script>
         // 在首屏渲染前定好主题，避免亮/暗切换时闪一下
@@ -28,7 +30,26 @@
 <body id="app">
     <header class="header">
         <a class="brand" href="#">
-            <span class="brand-icon">🧰</span>
+            <!--
+                顶栏标识。造型与 PWA 图标（images/icons/icon.svg）一致，
+                这里是单色版：不带底色方块、用 currentColor 上色，
+                所以亮暗主题会自动跟随。接缝与锁扣用 mask 镂空。
+                改图形时记得同步 images/icons/icon.svg 与 icon-glyph.svg。
+            -->
+            <svg class="brand-icon" viewBox="56 55.5 400 400" aria-hidden="true">
+                <defs>
+                    <mask id="brandSeam">
+                        <rect x="56" y="55.5" width="400" height="400" fill="#ffffff"/>
+                        <rect x="72" y="258" width="368" height="13" fill="#000000"/>
+                        <rect x="228" y="245" width="56" height="39" rx="11" fill="#000000"/>
+                    </mask>
+                </defs>
+                <g fill="currentColor" stroke="currentColor" mask="url(#brandSeam)">
+                    <path d="M181 200 V182 A30 30 0 0 1 211 152 H301 A30 30 0 0 1 331 182 V200"
+                          fill="none" stroke-width="34" stroke-linecap="round"/>
+                    <rect x="72" y="186" width="368" height="190" rx="30" stroke="none"/>
+                </g>
+            </svg>
             <span class="brand-name">Tools</span>
         </a>
         <div class="search">

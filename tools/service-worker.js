@@ -12,7 +12,7 @@
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
    ============================================================ */
 
-const VERSION = 'Tools-v7';
+const VERSION = 'Tools-v8';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -119,11 +119,15 @@ const CORE = [
   './vendor/smol-toml/dist/util.js',
 
   // 图标
-  'images/icons/icon-128x128.png',
-  'images/icons/icon-256x256.png',
+  'images/icons/icon.svg',
   'images/icons/icon-32x32.png',
-  'images/icons/icon-512x512.png',
   'images/icons/icon-64x64.png',
+  'images/icons/icon-128x128.png',
+  'images/icons/icon-180x180.png',
+  'images/icons/icon-256x256.png',
+  'images/icons/icon-512x512.png',
+  'images/icons/icon-maskable-192x192.png',
+  'images/icons/icon-maskable-512x512.png',
 
 ];
 

@@ -173,6 +173,7 @@ tools/
 ├─ manifest.json         PWA 清单
 ├─ service-worker.js     离线缓存
 ├─ styles/index.css      样式（亮/暗双主题，light-dark() 一套定义）
+├─ images/icons/         图标：icon.svg 是源文件，PNG 由它渲染生成
 ├─ scripts/
 │  ├─ app.js             外壳逻辑：路由、搜索、分类过滤、主题
 │  ├─ registry.js        工具目录（新增工具改这里）

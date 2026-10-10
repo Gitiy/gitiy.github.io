@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Tools">
+  <!--
+    Tools 工具箱图标。
+    配色取站点自己的强调色（accent，cadetblue 一族），造型用扁平几何加圆角，
+    和界面里的卡片、按钮保持同一套语言。图形是工具箱，与顶栏的标识呼应。
+    改这个文件后要重新跑 _selftest/icon-gen-tools.mjs 生成各尺寸 PNG。
+    注意：XML 注释里不能出现连续两个减号，否则整个文档会解析失败。
+  -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#74b6b8"/>
+      <stop offset="1" stop-color="#4a8486"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#tile)"/>
+
+  <!-- 提手：宽而扁，太窄会读成手提包 -->
+  <path d="M181 200 V182 A30 30 0 0 1 211 152 H301 A30 30 0 0 1 331 182 V200"
+        fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round"/>
+
+  <!-- 箱体 -->
+  <rect x="72" y="186" width="368" height="190" rx="30" fill="#ffffff"/>
+
+  <!-- 箱盖接缝与锁扣 -->
+  <rect x="72" y="258" width="368" height="13" fill="#4a8486"/>
+  <rect x="228" y="245" width="56" height="39" rx="11" fill="#4a8486"/>
+</svg>

@@ -9,8 +9,10 @@
     <meta name="description" content="纯本地运行的在线工具箱：PDF 合并拆分、PDF 转 Word/Excel/PPT、Office 转 PDF、图片与文本处理。文件不上传，可离线使用。">
     <meta name="theme-color" content="#ececec">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="images/icons/icon-32x32.png">
-    <link rel="apple-touch-icon" href="images/icons/icon-128x128.png">
+    <!-- 现代浏览器优先用矢量图标，PNG 作为回退；iOS 的 apple-touch-icon 只认 PNG -->
+    <link rel="icon" type="image/svg+xml" href="images/icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/icons/icon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/icons/icon-180x180.png">
     <link rel="stylesheet" type="text/css" href="styles/index.css">
     <script>
         // 在首屏渲染前定好主题，避免亮/暗切换时闪一下

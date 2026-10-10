@@ -54,6 +54,27 @@ export const loadXLSX = () => need('xlsx.full.min.js', 'XLSX');
 export const loadDocxPreview = () => need('docx-preview.min.js', 'docx');
 export const loadHtmlToImage = () => need('html-to-image.js', 'htmlToImage');
 
+/* 开发者工具用到的几个 */
+export const loadYaml = () => need('js-yaml.min.js', 'jsyaml');
+export const loadTurndown = () => need('turndown.min.js', 'TurndownService');
+export const loadCronstrue = () => need('cronstrue-i18n.min.js', 'cronstrue');
+export const loadXml = () => need('fxp.min.js', 'fxp');
+export const loadSqlFormatter = () => need('sql-formatter.min.js', 'sqlFormatter');
+
+/** svgo 是 ESM（jsDelivr 打包版），用动态 import */
+let svgoPromise = null;
+export function loadSvgo() {
+  if (!svgoPromise) svgoPromise = import(vendorUrl('svgo.esm.js'));
+  return svgoPromise;
+}
+
+/** smol-toml 也是 ESM，且拆成了多个相对模块 */
+let tomlPromise = null;
+export function loadToml() {
+  if (!tomlPromise) tomlPromise = import(vendorUrl('smol-toml/dist/index.js'));
+  return tomlPromise;
+}
+
 /** 提前把某个工具会用到的库预热（在工具 init 里调用，减少首次操作等待） */
 export function preload(...loaders) {
   return Promise.all(loaders.map((f) => f().catch(() => null)));

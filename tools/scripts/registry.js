@@ -16,6 +16,7 @@
 
 export const CATEGORIES = [
   { id: 'all', name: '全部' },
+  { id: 'dev', name: '开发者工具' },
   { id: 'pdf', name: 'PDF 工具' },
   { id: 'convert', name: '格式转换' },
   { id: 'office', name: 'Office 工具' },
@@ -25,7 +26,145 @@ export const CATEGORIES = [
 ];
 
 export const TOOLS = [
-  /* ---------------- PDF 工具 ---------------- */
+  /* ============================================================
+     开发者工具
+     ============================================================ */
+  {
+    id: 'dev-json', name: 'JSON 格式化与校验', cat: 'dev', icon: '🧩', badge: 'hot',
+    desc: '格式化、压缩、校验并分析 JSON。出错时直接指出第几行第几列，而不是一句 Unexpected token。',
+    module: './tools/dev-json.js',
+    keywords: 'json 格式化 美化 校验 压缩 排序 format validate pretty minify',
+  },
+  {
+    id: 'dev-encode', name: 'Base 系列编解码', cat: 'dev', icon: '🔤', badge: 'hot',
+    desc: 'Base64 / URL-safe / Base32 / Base58 / 十六进制 / URL 编码 / HTML 实体互转，支持中文与 emoji，也能把文件转成 Base64。',
+    module: './tools/dev-encode.js',
+    keywords: 'base64 base32 base58 hex 编码 解码 转码 url encode 文件',
+  },
+  {
+    id: 'dev-hash', name: '哈希与校验和', cat: 'dev', icon: '#️⃣', badge: 'hot',
+    desc: 'MD5、SHA-1/256/384/512、SHA-3、Keccak-256、RIPEMD-160、CRC-32、Adler-32，支持文本与文件，还能算 HMAC。',
+    module: './tools/dev-hash.js',
+    keywords: 'md5 sha sha1 sha256 sha3 keccak ripemd crc32 adler 哈希 摘要 校验和 hmac',
+  },
+  {
+    id: 'dev-deobfuscate', name: 'JS 反混淆', cat: 'dev', icon: '🧿', badge: 'new',
+    desc: '还原被混淆的 JavaScript：Packer / Obfuscator.io / JSFuck / JJEncode / AAEncode / 十六进制转义等。需要执行代码时放进隔离沙箱。',
+    module: './tools/dev-deobfuscate.js',
+    keywords: 'js javascript 反混淆 解混淆 解密 还原 deobfuscate unpack unpacker packer jsfuck jjencode aaencode obfuscator eval 混淆',
+  },
+  {
+    id: 'dev-jwt', name: 'JWT 解码与校验', cat: 'dev', icon: '🎫',
+    desc: '拆解 JSON Web Token 的头部与载荷，解析时间类声明，并用密钥校验 HS256/384/512 签名。',
+    module: './tools/dev-jwt.js',
+    keywords: 'jwt token 令牌 解码 校验 签名 bearer 鉴权',
+  },
+  {
+    id: 'dev-uuid', name: 'UUID / ULID 生成', cat: 'dev', icon: '🆔',
+    desc: '批量生成 UUID v4 / v7 / v1、ULID、NanoID、短 ID，并可校验已有 UUID 的格式与版本。',
+    module: './tools/dev-uuid.js',
+    keywords: 'uuid ulid nanoid 唯一 id 生成 guid 主键',
+  },
+  {
+    id: 'dev-cron', name: 'Cron 表达式解析', cat: 'dev', icon: '⏰',
+    desc: '解析 5 段或 6 段 Cron 表达式，用中文说明含义，并列出接下来若干次执行时间。',
+    module: './tools/dev-cron.js',
+    keywords: 'cron 定时 表达式 解析 计划任务 crontab 调度',
+  },
+  {
+    id: 'dev-regex', name: '正则测试与替换', cat: 'dev', icon: '🔍',
+    desc: '实时高亮匹配结果，列出每个匹配与捕获组，并预览替换后的文本。支持所有 JS 正则标志。',
+    module: './tools/dev-regex.js',
+    keywords: '正则 regex 匹配 替换 测试 捕获组 表达式',
+  },
+  {
+    id: 'dev-json-ts', name: 'JSON 转类型定义', cat: 'dev', icon: '🧬',
+    desc: '把 JSON 样本推断成 TypeScript / Go / Java / Python / Rust 的类型声明，数组元素结构不一致时自动合并。',
+    module: './tools/dev-json-ts.js',
+    keywords: 'json 转 typescript 类型 接口 interface 生成 go java python rust 代码生成',
+  },
+  {
+    id: 'dev-data-convert', name: '数据格式转换', cat: 'dev', icon: '🔀',
+    desc: 'JSON / YAML / TOML / XML / CSV / TSV 之间互转。CSV 与 JSON 互转时按首行做字段名。',
+    module: './tools/dev-data-convert.js',
+    keywords: 'json yaml toml xml csv tsv 转换 互转 配置 序列化',
+  },
+  {
+    id: 'dev-radix', name: '进制转换', cat: 'dev', icon: '🔢',
+    desc: '在 2–36 任意进制之间互转，用 BigInt 计算所以 64 位以上的大整数也不会丢精度。附带位视图。',
+    module: './tools/dev-radix.js',
+    keywords: '进制 转换 二进制 十六进制 十进制 八进制 位运算 radix hex bin',
+  },
+  {
+    id: 'dev-case', name: '命名风格转换', cat: 'dev', icon: '🐫',
+    desc: 'camelCase / snake_case / kebab-case 等 14 种命名风格互转，能正确处理缩写词与中文。',
+    module: './tools/dev-case.js',
+    keywords: '命名 大小写 转换 camel snake kebab pascal 驼峰 下划线 变量名',
+  },
+  {
+    id: 'dev-crypto', name: '文本加解密', cat: 'dev', icon: '🔐',
+    desc: '用 AES-256-GCM 加密文本，密钥由 PBKDF2 从密码派生，密文自带盐值与参数。也提供 MD5 摘要与 ROT13。',
+    module: './tools/dev-crypto.js',
+    keywords: '加密 解密 aes gcm 密码 对称 pbkdf2 混淆 rot13',
+  },
+  {
+    id: 'dev-keypair', name: '密钥对生成', cat: 'dev', icon: '🔑',
+    desc: '在浏览器里生成 RSA / ECDSA / Ed25519 / ECDH 密钥对，导出 PEM 与 JWK。私钥只在本机内存里。',
+    module: './tools/dev-keypair.js',
+    keywords: '密钥 公钥 私钥 rsa ecdsa ed25519 pem jwk 生成 openssl',
+  },
+  {
+    id: 'dev-curl', name: 'cURL 转代码', cat: 'dev', icon: '🔄',
+    desc: '把 cURL 命令解析成结构化请求，再生成 10 种语言与工具的调用代码。',
+    module: './tools/dev-curl.js',
+    keywords: 'curl 转换 代码 fetch axios python go php java csharp ruby rust httpie 请求',
+  },
+  {
+    id: 'dev-sql', name: 'SQL 格式化', cat: 'dev', icon: '🗄️',
+    desc: '把挤成一行的 SQL 排成可读的缩进结构，支持十多种数据库方言，可调关键字大小写与缩进。',
+    module: './tools/dev-sql.js',
+    keywords: 'sql 格式化 美化 mysql postgres oracle 方言 缩进 format',
+  },
+  {
+    id: 'dev-html-md', name: 'HTML 转 Markdown', cat: 'dev', icon: '📝',
+    desc: '把网页内容或富文本转成 Markdown，表格与代码块都能保留，适合粘进文档与 Issue。',
+    module: './tools/dev-html-md.js',
+    keywords: 'html markdown md 转换 富文本 turndown 文档',
+  },
+  {
+    id: 'dev-svg', name: 'SVG 压缩优化', cat: 'dev', icon: '🪶',
+    desc: '用 SVGO 压缩 SVG：去掉编辑器残留元数据、注释与无用小数值，画面完全一致。',
+    module: './tools/dev-svg.js',
+    keywords: 'svg 压缩 优化 精简 svgo 图标 体积',
+  },
+  {
+    id: 'dev-cidr', name: 'CIDR / 子网计算', cat: 'dev', icon: '🌐',
+    desc: '算出网络地址、广播地址、可用主机范围、掩码写法，并给出二进制视图。',
+    module: './tools/dev-cidr.js',
+    keywords: 'cidr 子网 掩码 网段 ip 计算 网络 subnet netmask',
+  },
+  {
+    id: 'dev-time', name: '时间戳转换', cat: 'dev', icon: '🕐',
+    desc: 'Unix 时间戳与日期字符串互转，支持秒/毫秒自动识别、时区切换、自定义格式与相对时间。',
+    module: './tools/dev-time.js',
+    keywords: '时间戳 unix timestamp 日期 转换 时区 iso8601 格式化',
+  },
+  {
+    id: 'dev-url', name: 'URL 解析与编辑', cat: 'dev', icon: '🔗',
+    desc: '拆解 URL 的协议、主机、端口、路径、查询参数与锚点，可视化增删改查询参数。',
+    module: './tools/dev-url.js',
+    keywords: 'url 解析 链接 查询参数 query 编码 拆解 编辑',
+  },
+  {
+    id: 'dev-sample', name: '测试数据生成', cat: 'dev', icon: '🧪',
+    desc: '批量生成姓名、邮箱、手机号、身份证号（校验位正确）、地址、公司等假数据，导出 JSON / CSV / SQL / TS。',
+    module: './tools/dev-sample.js',
+    keywords: '测试数据 mock 假数据 生成 姓名 邮箱 手机号 身份证 造数 faker',
+  },
+
+  /* ============================================================
+     PDF 工具
+     ============================================================ */
   {
     id: 'pdf-merge', name: 'PDF 合并', cat: 'pdf', icon: '🔗', badge: 'hot',
     desc: '把多个 PDF 的指定页面按顺序合并成一份新 PDF。支持逐份挑选页范围、调整顺序。',
@@ -93,21 +232,23 @@ export const TOOLS = [
     keywords: '提取图片 导出图片 内嵌图 extract image',
   },
 
-  /* ---------------- 格式转换 ---------------- */
+  /* ============================================================
+     格式转换
+     ============================================================ */
   {
-    id: 'pdf-to-word', name: 'PDF 转 Word', cat: 'convert', icon: '📘', badge: 'new',
+    id: 'pdf-to-word', name: 'PDF 转 Word', cat: 'convert', icon: '📘',
     desc: '提取文字与段落生成可编辑的 .docx。注意：只还原文字内容，不还原复杂版式。',
     module: './tools/pdf-convert.js', params: { mode: 'docx' },
     keywords: '转word docx 可编辑 转换',
   },
   {
-    id: 'pdf-to-excel', name: 'PDF 转 Excel', cat: 'convert', icon: '📗', badge: 'new',
+    id: 'pdf-to-excel', name: 'PDF 转 Excel', cat: 'convert', icon: '📗',
     desc: '按文字坐标还原成行列，导出 .xlsx。表格型 PDF 效果好，段落文本会退化成单列。',
     module: './tools/pdf-convert.js', params: { mode: 'xlsx' },
     keywords: '转excel xlsx 表格 数据 转换',
   },
   {
-    id: 'pdf-to-ppt', name: 'PDF 转 PPT', cat: 'convert', icon: '📙', badge: 'new',
+    id: 'pdf-to-ppt', name: 'PDF 转 PPT', cat: 'convert', icon: '📙',
     desc: '每页渲染成一张图铺满一页幻灯片，导出 .pptx。适合把 PDF 当演示稿用。',
     module: './tools/pdf-convert.js', params: { mode: 'pptx' },
     keywords: '转ppt pptx 幻灯片 演示 转换',
@@ -125,7 +266,9 @@ export const TOOLS = [
     keywords: '图片 转pdf 合成 jpg png 合并',
   },
 
-  /* ---------------- Office 工具 ---------------- */
+  /* ============================================================
+     Office 工具
+     ============================================================ */
   {
     id: 'office-to-pdf', name: 'Office 转 PDF', cat: 'office', icon: '📄', badge: 'hot',
     desc: 'Word / Excel / PowerPoint 转成 PDF，尽量保留原始排版。纯本地渲染，不用上传。',
@@ -151,15 +294,55 @@ export const TOOLS = [
     keywords: 'excel json 数据 转换 xlsx csv',
   },
 
-  /* ---------------- 图片工具 ---------------- */
+  /* ============================================================
+     图片工具
+     ============================================================ */
+  {
+    id: 'image-compress', name: '图片压缩', cat: 'image', icon: '🗜️', badge: 'hot',
+    desc: '用 MozJPEG / AVIF / OxiPNG 等真正的编解码器压缩图片，拖动分割线实时对比画质与体积。',
+    module: './tools/image-compress.js',
+    keywords: '图片压缩 压缩 体积 jpg png webp avif mozjpeg oxipng 画质 compress 瘦身',
+  },
+  {
+    id: 'image-batch', name: '批量图片压缩', cat: 'image', icon: '📦',
+    desc: '一次拖入多张图片用同一套参数压缩，逐张报告体积变化，完成后打包 zip。',
+    module: './tools/image-batch.js',
+    keywords: '批量 图片 压缩 打包 zip 多张 批量处理',
+  },
+  {
+    id: 'image-resize', name: '图片缩放与裁剪', cat: 'image', icon: '✂️',
+    desc: '按像素或百分比缩放（Lanczos3 重采样），或按比例从中心裁剪，裁剪框可直接拖动。',
+    module: './tools/image-resize.js',
+    keywords: '图片 缩放 裁剪 尺寸 放大 缩小 裁切 resize crop',
+  },
+  {
+    id: 'image-watermark', name: '图片加水印', cat: 'image', icon: '💧',
+    desc: '给图片加文字或图片水印，位置、大小、旋转、透明度、平铺都可调，实时预览。',
+    module: './tools/image-watermark.js',
+    keywords: '图片 水印 加logo 版权 平铺 watermark',
+  },
   {
     id: 'image-convert', name: '图片格式转换', cat: 'image', icon: '🔄',
     desc: 'PNG / JPG / WebP 互转，可调质量与尺寸，支持批量打包下载。',
     module: './tools/image-convert.js',
-    keywords: '图片 转换 png jpg webp 压缩 缩放',
+    keywords: '图片 转换 png jpg webp 格式',
+  },
+  {
+    id: 'image-base64', name: '图片转 Base64', cat: 'image', icon: '🧬',
+    desc: '把图片转成 Base64 / Data URL / CSS 背景 / HTML img 标签，可直接内联进网页省一次请求。',
+    module: './tools/image-base64.js',
+    keywords: '图片 base64 dataurl 内联 css 背景 img 标签 转码',
+  },
+  {
+    id: 'image-palette', name: '图片取色器', cat: 'image', icon: '🎨',
+    desc: '在图片上点一下取精确颜色，或自动提取主色板（中位切分法）。给出 HEX / RGB / HSL。',
+    module: './tools/image-palette.js',
+    keywords: '取色 吸管 主色 配色 色板 palette 颜色 hex rgb hsl',
   },
 
-  /* ---------------- 文本工具 ---------------- */
+  /* ============================================================
+     文本工具
+     ============================================================ */
   {
     id: 'text-dedupe', name: '文本去重', cat: 'text', icon: '🧹',
     desc: '去掉重复行，可选忽略大小写、忽略空白、保留首次或末次出现。',
@@ -167,13 +350,15 @@ export const TOOLS = [
     keywords: '去重 重复 行 清理 unique',
   },
   {
-    id: 'text-diff', name: '文本比较', cat: 'text', icon: '🔍',
+    id: 'text-diff', name: '文本比较', cat: 'text', icon: '🔎',
     desc: '逐行对比两段文本的差异，高亮新增与删除。',
     module: './tools/text-diff.js',
     keywords: '比较 diff 对比 差异 不同',
   },
 
-  /* ---------------- 其他工具 ---------------- */
+  /* ============================================================
+     其他工具
+     ============================================================ */
   {
     id: 'hosts', name: 'AdBlock Hosts Sort', cat: 'misc', icon: '🛡️',
     desc: '把 hosts 规则按域名分组排序，合并重复项，保留注释状态。',

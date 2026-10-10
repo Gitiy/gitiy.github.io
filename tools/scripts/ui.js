@@ -21,7 +21,11 @@ export function el(tag, props = {}, ...children) {
   }
   for (const c of children.flat(Infinity)) {
     if (c == null || c === false) continue;
-    n.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    if (c instanceof Node) { n.append(c); continue; }
+    // 控件对象（select / toggle / numberInput…）直接当子节点传进来时，
+    // 自动取它的 root。否则会变成 "[object Object]" 文本 —— 这个坑踩过一次。
+    if (c && c.root instanceof Node) { n.append(c.root); continue; }
+    n.append(document.createTextNode(String(c)));
   }
   return n;
 }

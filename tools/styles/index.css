@@ -1288,3 +1288,749 @@ img {
         animation: none !important;
     }
 }
+
+/* ============================================================
+   开发者工具与图片工具用到的组件
+   ============================================================ */
+
+.grow {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.hint-list {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.hint-list .kv-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+/* ---------- 键值表 ---------- */
+
+.kv-list {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.kv-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr auto;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem .6rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    font-size: .84rem;
+}
+
+.kv-row:last-child {
+    border-bottom: 0;
+}
+
+.kv-key {
+    color: var(--fg-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kv-val {
+    font-family: 'Roboto Mono', Consolas, Menlo, monospace;
+    font-size: .82rem;
+    word-break: break-all;
+    white-space: pre-wrap;
+    color: var(--fg);
+}
+
+.kv-val.bad {
+    color: var(--err);
+}
+
+/* ---------- 小标签 ---------- */
+
+.chip {
+    display: inline-block;
+    padding: .1rem .45rem;
+    border-radius: 999px;
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+    font-size: .74rem;
+    color: var(--fg-2);
+    font-family: 'Roboto Mono', Consolas, monospace;
+    white-space: nowrap;
+}
+
+.chip.ok {
+    background: var(--accent-soft);
+    border-color: transparent;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ---------- 哈希结果 ---------- */
+
+.hash-list {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.hash-row {
+    display: grid;
+    grid-template-columns: 8rem 1fr auto;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .5rem;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+}
+
+.hash-name {
+    font-size: .78rem;
+    color: var(--fg-2);
+    font-weight: 600;
+}
+
+.hash-value {
+    font-family: 'Roboto Mono', Consolas, monospace;
+    font-size: .78rem;
+    word-break: break-all;
+    color: var(--fg);
+}
+
+/* ---------- 代码块 / 位视图 ---------- */
+
+.code-block,
+.bit-view {
+    margin: 0;
+    padding: .6rem .7rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: 'Roboto Mono', Consolas, monospace;
+    font-size: .78rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 22rem;
+    overflow: auto;
+    color: var(--fg);
+}
+
+.bit-view {
+    white-space: pre;
+    overflow-x: auto;
+}
+
+/* ---------- URL 参数行 ---------- */
+
+.param-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem 0;
+    border-bottom: 1px dashed var(--line);
+}
+
+.param-row .input {
+    flex: 1 1 8rem;
+    min-width: 6rem;
+}
+
+.param-eq {
+    color: var(--fg-3);
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* ---------- 命名风格 / 正则 ---------- */
+
+.case-list {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.re-view {
+    padding: .7rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: 'Roboto Mono', Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 22rem;
+    overflow: auto;
+    color: var(--fg);
+}
+
+.re-hit {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.match-list {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    max-height: 24rem;
+    overflow: auto;
+}
+
+.match-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .5rem;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    font-size: .78rem;
+}
+
+.match-idx,
+.match-pos {
+    color: var(--fg-3);
+    font-size: .74rem;
+    white-space: nowrap;
+}
+
+.match-val {
+    font-family: 'Roboto Mono', monospace;
+    word-break: break-all;
+    color: var(--fg);
+}
+
+.match-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    width: 100%;
+}
+
+/* ---------- Cron ---------- */
+
+.cron-desc {
+    margin-top: .6rem;
+}
+
+.cron-text {
+    margin: 0;
+    padding: .55rem .7rem;
+    background: var(--accent-soft);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-size: .86rem;
+    line-height: 1.6;
+}
+
+.run-list {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    max-height: 22rem;
+    overflow: auto;
+}
+
+.run-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    align-items: center;
+    gap: .6rem;
+    padding: .3rem .5rem;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    font-size: .82rem;
+}
+
+.run-idx {
+    color: var(--fg-3);
+    font-size: .74rem;
+}
+
+.run-time {
+    font-family: 'Roboto Mono', monospace;
+}
+
+.run-in {
+    color: var(--fg-3);
+    font-size: .76rem;
+    white-space: nowrap;
+}
+
+/* ---------- 图片对比（squoosh 风格） ---------- */
+
+.cmp {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    line-height: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background:
+        repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface) 0% 50%) 50% / 20px 20px;
+    user-select: none;
+    touch-action: none;
+}
+
+.cmp-side {
+    display: block;
+    width: 100%;
+}
+
+.cmp-after {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 0 0 50%);
+}
+
+.cmp-canvas,
+.cmp img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.cmp-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    cursor: ew-resize;
+    transform: translateX(-1px);
+    z-index: 2;
+}
+
+.cmp-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.2rem;
+    height: 2.2rem;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 2px solid var(--surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+    font-size: .9rem;
+    line-height: 1;
+}
+
+.cmp-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    margin-top: .7rem;
+}
+
+.cmp-metric {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+    font-size: .85rem;
+}
+
+.cmp-metric-label {
+    font-size: .74rem;
+    color: var(--fg-3);
+}
+
+.cmp-metric strong {
+    font-size: 1rem;
+}
+
+.good {
+    color: var(--ok);
+}
+
+.warn {
+    color: var(--warn);
+}
+
+/* ---------- 质量-体积曲线 ---------- */
+
+.curve {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+
+.curve-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr 5.5rem 5rem auto;
+    align-items: center;
+    gap: .6rem;
+    font-size: .8rem;
+}
+
+.curve-q {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--fg-2);
+}
+
+.curve-bar {
+    display: block;
+    height: .55rem;
+    background: var(--surface-3);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.curve-bar i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+}
+
+.curve-size {
+    font-family: 'Roboto Mono', monospace;
+    text-align: right;
+}
+
+.curve-delta {
+    font-size: .76rem;
+    text-align: right;
+}
+
+/* ---------- 批量处理 ---------- */
+
+.batch-list {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    max-height: 26rem;
+    overflow: auto;
+}
+
+.batch-row {
+    display: grid;
+    grid-template-columns: minmax(6rem, 1.6fr) 5.5rem 4.5rem 1rem 4.5rem 4.5rem auto;
+    align-items: center;
+    gap: .5rem;
+    padding: .32rem .5rem;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    font-size: .8rem;
+}
+
+.batch-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.batch-dim,
+.batch-arrow {
+    color: var(--fg-3);
+    font-size: .76rem;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.batch-size {
+    font-family: 'Roboto Mono', monospace;
+    text-align: right;
+}
+
+.batch-delta {
+    font-size: .76rem;
+    text-align: right;
+}
+
+/* ---------- 缩放与裁剪 ---------- */
+
+.resize-view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    margin-bottom: .6rem;
+}
+
+.resize-preview {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+    max-width: 100%;
+}
+
+.resize-canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.crop-overlay {
+    position: absolute;
+    border: 2px dashed var(--accent);
+    background: rgba(95, 158, 160, .12);
+    cursor: move;
+    touch-action: none;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .28);
+}
+
+/* ---------- 水印 / 取色画布 ---------- */
+
+.wm-canvas,
+.pick-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 34rem;
+    object-fit: contain;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background:
+        repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface) 0% 50%) 50% / 20px 20px;
+}
+
+.pick-canvas {
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* ---------- 图片转 Base64 ---------- */
+
+.b64-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+    padding: .5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background:
+        repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface) 0% 50%) 50% / 20px 20px;
+}
+
+.b64-img {
+    max-width: 100%;
+    max-height: 16rem;
+    height: auto;
+}
+
+/* ---------- 取色器 ---------- */
+
+.picked-box {
+    min-height: 3rem;
+}
+
+.picked-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.picked-chip {
+    display: block;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    flex: 0 0 auto;
+}
+
+.picked-lines {
+    flex: 1 1 14rem;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.picked-line {
+    display: grid;
+    grid-template-columns: 4rem 1fr auto;
+    align-items: center;
+    gap: .5rem;
+    font-size: .82rem;
+}
+
+.picked-key {
+    color: var(--fg-3);
+    font-size: .76rem;
+}
+
+.picked-val {
+    font-family: 'Roboto Mono', monospace;
+    word-break: break-all;
+}
+
+.palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: .5rem;
+}
+
+.swatch {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: .3rem .5rem;
+    padding: .4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.swatch-color {
+    grid-row: span 2;
+    display: block;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+}
+
+.swatch-hex {
+    font-family: 'Roboto Mono', monospace;
+    font-size: .8rem;
+}
+
+.swatch-share {
+    font-size: .72rem;
+    color: var(--fg-3);
+    text-align: right;
+}
+
+.swatch-hsl {
+    grid-column: 2 / -1;
+    font-size: .72rem;
+    color: var(--fg-3);
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* ---------- SVG 预览 ---------- */
+
+.svg-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 6rem;
+    padding: .6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background:
+        repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface) 0% 50%) 50% / 20px 20px;
+}
+
+.svg-img {
+    max-width: 100%;
+    max-height: 18rem;
+}
+
+/* ---------- 密钥输出 ---------- */
+
+.key-out {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+.key-block {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.key-block .field-hint.warn {
+    color: var(--err);
+    font-weight: 600;
+}
+
+/* ---------- 字段选择器 ---------- */
+
+.field-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+.pick-chip {
+    padding: .28rem .6rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg-2);
+    font-size: .78rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+
+.pick-chip:hover {
+    border-color: var(--accent);
+    color: var(--fg);
+}
+
+.pick-chip.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+    font-weight: 600;
+}
+
+/* ---------- 其它小件 ---------- */
+
+.dim {
+    opacity: .45;
+    pointer-events: none;
+}
+
+.file-row.active {
+    background: var(--accent-soft);
+}
+
+/* 窄屏下这些多列表格要能横向滚动，而不是被压扁 */
+@media (max-width: 720px) {
+    .kv-row {
+        grid-template-columns: minmax(6rem, 8rem) 1fr auto;
+    }
+
+    .batch-row {
+        grid-template-columns: 1.4fr 4rem 3.6rem 3.6rem auto;
+    }
+
+    .batch-dim,
+    .batch-arrow,
+    .batch-delta {
+        display: none;
+    }
+
+    .curve-row {
+        grid-template-columns: 2.6rem 1fr 4.5rem auto;
+    }
+
+    .curve-delta {
+        display: none;
+    }
+
+    .hash-row {
+        grid-template-columns: 6rem 1fr auto;
+    }
+
+    .cmp-info {
+        gap: .9rem;
+    }
+}
+

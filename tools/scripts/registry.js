@@ -161,24 +161,6 @@ export const TOOLS = [
     module: './tools/dev-sample.js',
     keywords: '测试数据 mock 假数据 生成 姓名 邮箱 手机号 身份证 造数 faker',
   },
-  {
-    id: 'dev-zh', name: '简繁转换', cat: 'dev', icon: '🀄', badge: 'new',
-    desc: '简体与繁体互转，支持台湾正体、香港繁体与通用繁体。用词组词典，能正确处理「头发 → 頭髮」这类要看词境的转换。',
-    module: './tools/dev-zh.js',
-    keywords: '简繁 简体 繁体 转换 台湾 香港 正体 opencc 中文 繁简',
-  },
-  {
-    id: 'dev-qrcode', name: '二维码生成与识别', cat: 'dev', icon: '🔳', badge: 'new',
-    desc: '生成文本 / 网址 / WiFi / 名片 / 短信 / 电话 / 邮件二维码，导出 PNG 或矢量 SVG；也能识别图片里的二维码。',
-    module: './tools/dev-qrcode.js',
-    keywords: '二维码 qrcode qr 扫码 生成 识别 解码 wifi 名片 vcard 条形码',
-  },
-  {
-    id: 'dev-wordcloud', name: '词云图生成', cat: 'dev', icon: '☁️', badge: 'new',
-    desc: '把一段文字做成词云图，可选配色、外形、旋转比例与字号范围，导出 PNG。中文用 2/3 字组合近似分词。',
-    module: './tools/dev-wordcloud.js',
-    keywords: '词云 词频 云图 wordcloud 关键词 可视化 文本分析',
-  },
 
   /* ============================================================
      PDF 工具
@@ -321,6 +303,12 @@ export const TOOLS = [
     module: './tools/image-palette.js',
     keywords: '取色 吸管 主色 配色 色板 palette 颜色 hex rgb hsl',
   },
+  {
+    id: 'image-qrcode', name: '二维码生成与识别', cat: 'image', icon: '🔳', badge: 'new',
+    desc: '生成文本 / 网址 / WiFi / 名片 / 短信 / 电话 / 邮件二维码，导出 PNG 或矢量 SVG；也能识别图片里的二维码。',
+    module: './tools/image-qrcode.js',
+    keywords: '二维码 qrcode qr 扫码 生成 识别 解码 wifi 名片 vcard 条形码',
+  },
 
   /* ============================================================
      文本工具
@@ -336,6 +324,18 @@ export const TOOLS = [
     desc: '逐行对比两段文本的差异，高亮新增与删除。',
     module: './tools/text-diff.js',
     keywords: '比较 diff 对比 差异 不同',
+  },
+  {
+    id: 'text-zh', name: '简繁转换', cat: 'text', icon: '🀄', badge: 'new',
+    desc: '简体与繁体互转，支持台湾正体、香港繁体与通用繁体。用词组词典，能正确处理「头发 → 頭髮」这类要看词境的转换。',
+    module: './tools/text-zh.js',
+    keywords: '简繁 简体 繁体 转换 台湾 香港 正体 opencc 中文 繁简',
+  },
+  {
+    id: 'text-wordcloud', name: '词云图生成', cat: 'text', icon: '☁️', badge: 'new',
+    desc: '把一段文字做成词云图，可选配色、外形、旋转比例与字号范围，导出 PNG。中文用 2/3 字组合近似分词。',
+    module: './tools/text-wordcloud.js',
+    keywords: '词云 词频 云图 wordcloud 关键词 可视化 文本分析',
   },
 
   /* ============================================================

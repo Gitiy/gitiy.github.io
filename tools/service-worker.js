@@ -12,7 +12,7 @@
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
    ============================================================ */
 
-const VERSION = 'Tools-v8';
+const VERSION = 'Tools-v10';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -65,14 +65,12 @@ const CORE = [
   'scripts/tools/dev-time.js',
   'scripts/tools/dev-url.js',
   'scripts/tools/dev-uuid.js',
-  'scripts/tools/dev-wordcloud.js',
-  'scripts/tools/dev-zh.js',
-  'scripts/tools/dev-qrcode.js',
   'scripts/tools/image-base64.js',
   'scripts/tools/image-batch.js',
   'scripts/tools/image-compress.js',
   'scripts/tools/image-convert.js',
   'scripts/tools/image-palette.js',
+  'scripts/tools/image-qrcode.js',
   'scripts/tools/image-resize.js',
   'scripts/tools/image-to-pdf.js',
   'scripts/tools/image-watermark.js',
@@ -91,6 +89,8 @@ const CORE = [
   'scripts/tools/sheet-tools.js',
   'scripts/tools/text-dedupe.js',
   'scripts/tools/text-diff.js',
+  'scripts/tools/text-wordcloud.js',
+  'scripts/tools/text-zh.js',
 
   // 原有工具
 
@@ -120,6 +120,7 @@ const CORE = [
 
   // 图标
   'images/icons/icon.svg',
+  'images/icons/icon-glyph.svg',
   'images/icons/icon-32x32.png',
   'images/icons/icon-64x64.png',
   'images/icons/icon-128x128.png',

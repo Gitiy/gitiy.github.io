@@ -161,6 +161,24 @@ export const TOOLS = [
     module: './tools/dev-sample.js',
     keywords: '测试数据 mock 假数据 生成 姓名 邮箱 手机号 身份证 造数 faker',
   },
+  {
+    id: 'dev-zh', name: '简繁转换', cat: 'dev', icon: '🀄', badge: 'new',
+    desc: '简体与繁体互转，支持台湾正体、香港繁体与通用繁体。用词组词典，能正确处理「头发 → 頭髮」这类要看词境的转换。',
+    module: './tools/dev-zh.js',
+    keywords: '简繁 简体 繁体 转换 台湾 香港 正体 opencc 中文 繁简',
+  },
+  {
+    id: 'dev-qrcode', name: '二维码生成与识别', cat: 'dev', icon: '🔳', badge: 'new',
+    desc: '生成文本 / 网址 / WiFi / 名片 / 短信 / 电话 / 邮件二维码，导出 PNG 或矢量 SVG；也能识别图片里的二维码。',
+    module: './tools/dev-qrcode.js',
+    keywords: '二维码 qrcode qr 扫码 生成 识别 解码 wifi 名片 vcard 条形码',
+  },
+  {
+    id: 'dev-wordcloud', name: '词云图生成', cat: 'dev', icon: '☁️', badge: 'new',
+    desc: '把一段文字做成词云图，可选配色、外形、旋转比例与字号范围，导出 PNG。中文用 2/3 字组合近似分词。',
+    module: './tools/dev-wordcloud.js',
+    keywords: '词云 词频 云图 wordcloud 关键词 可视化 文本分析',
+  },
 
   /* ============================================================
      PDF 工具
@@ -214,12 +232,6 @@ export const TOOLS = [
     keywords: '尺寸 裁剪 页面大小 a4 a3 letter 打印 边距 crop',
   },
   {
-    id: 'pdf-to-image', name: 'PDF 转图片', cat: 'pdf', icon: '🖼️', badge: 'hot',
-    desc: '逐页导出 PNG / JPG，可自定分辨率与图片质量，多页自动打包 zip。',
-    module: './tools/pdf-to-image.js',
-    keywords: '转图片 png jpg 截图 导出图片 dpi',
-  },
-  {
     id: 'pdf-text', name: 'PDF 提取文字', cat: 'pdf', icon: '📝',
     desc: '把 PDF 里的文字按页提取成纯文本，可复制或导出 txt。扫描件会明确提示。',
     module: './tools/pdf-text.js',
@@ -236,28 +248,10 @@ export const TOOLS = [
      格式转换
      ============================================================ */
   {
-    id: 'pdf-to-word', name: 'PDF 转 Word', cat: 'convert', icon: '📘',
-    desc: '提取文字与段落生成可编辑的 .docx。注意：只还原文字内容，不还原复杂版式。',
-    module: './tools/pdf-convert.js', params: { mode: 'docx' },
-    keywords: '转word docx 可编辑 转换',
-  },
-  {
-    id: 'pdf-to-excel', name: 'PDF 转 Excel', cat: 'convert', icon: '📗',
-    desc: '按文字坐标还原成行列，导出 .xlsx。表格型 PDF 效果好，段落文本会退化成单列。',
-    module: './tools/pdf-convert.js', params: { mode: 'xlsx' },
-    keywords: '转excel xlsx 表格 数据 转换',
-  },
-  {
-    id: 'pdf-to-ppt', name: 'PDF 转 PPT', cat: 'convert', icon: '📙',
-    desc: '每页渲染成一张图铺满一页幻灯片，导出 .pptx。适合把 PDF 当演示稿用。',
-    module: './tools/pdf-convert.js', params: { mode: 'pptx' },
-    keywords: '转ppt pptx 幻灯片 演示 转换',
-  },
-  {
-    id: 'pdf-to-html', name: 'PDF 转 HTML', cat: 'convert', icon: '🌐',
-    desc: '按坐标把文字绝对定位到 HTML，视觉上接近原版，可选中复制。',
-    module: './tools/pdf-convert.js', params: { mode: 'html' },
-    keywords: '转html 网页 转换',
+    id: 'pdf-convert', name: 'PDF 转换', cat: 'convert', icon: '🔄', badge: 'hot',
+    desc: '把 PDF 转成 Word / Excel / PPT / HTML 或图片。选好目标格式再导出，换个格式不用重新拖文件。',
+    module: './tools/pdf-convert.js',
+    keywords: 'pdf 转换 转word 转excel 转ppt 转html 转图片 docx xlsx pptx png jpg 导出',
   },
   {
     id: 'image-to-pdf', name: '图片转 PDF', cat: 'convert', icon: '🖼️',
@@ -270,28 +264,16 @@ export const TOOLS = [
      Office 工具
      ============================================================ */
   {
-    id: 'office-to-pdf', name: 'Office 转 PDF', cat: 'office', icon: '📄', badge: 'hot',
-    desc: 'Word / Excel / PowerPoint 转成 PDF，尽量保留原始排版。纯本地渲染，不用上传。',
-    module: './tools/office-convert.js', params: { mode: 'pdf' },
-    keywords: 'word excel ppt 转pdf docx xlsx pptx 转换',
+    id: 'office-convert', name: 'Office 转换', cat: 'office', icon: '📄', badge: 'hot',
+    desc: 'Word / Excel / PowerPoint 转成 PDF 或图片，尽量保留原始排版。纯本地渲染，不用上传。',
+    module: './tools/office-convert.js',
+    keywords: 'word excel ppt 转pdf 转图片 docx xlsx pptx png jpg 转换',
   },
   {
-    id: 'office-to-image', name: 'Office 转图片', cat: 'office', icon: '🏞️',
-    desc: 'Word / Excel / PowerPoint 逐页导出 PNG / JPG，多页打包 zip。',
-    module: './tools/office-convert.js', params: { mode: 'image' },
-    keywords: 'word excel ppt 转图片 png jpg 导出',
-  },
-  {
-    id: 'sheet-convert', name: '表格格式转换', cat: 'office', icon: '📊',
-    desc: 'Excel / CSV / TSV 互转，可选工作表、自定分隔符与编码。',
-    module: './tools/sheet-tools.js', params: { mode: 'convert' },
-    keywords: 'excel csv tsv 互转 表格 xlsx',
-  },
-  {
-    id: 'excel-to-json', name: 'Excel 转 JSON', cat: 'office', icon: '🧾',
-    desc: '把工作表转成 JSON，首行作为字段名，支持数组或对象形式输出。',
-    module: './tools/sheet-tools.js', params: { mode: 'json' },
-    keywords: 'excel json 数据 转换 xlsx csv',
+    id: 'sheet-convert', name: '表格转换', cat: 'office', icon: '📊',
+    desc: 'Excel / CSV / TSV 互转，也可导出 JSON / HTML / Markdown。可选工作表、自定义分隔符。',
+    module: './tools/sheet-tools.js',
+    keywords: 'excel csv tsv 互转 表格 xlsx json html markdown',
   },
 
   /* ============================================================

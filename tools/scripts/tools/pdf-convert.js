@@ -1,28 +1,50 @@
 import {
   toolPage, fileZone, el, button, select, textInput, toggle, rangeInput,
-  note, toast, grid, fieldset, progress,
+  note, toast, grid, fieldset, progress, previewPane,
 } from '../ui.js';
-import { openPdf, allText, hasTextLayer, parsePageRange, renderPage, pageText } from '../lib/pdfkit.js';
+import { openPdf, hasTextLayer, parsePageRange, renderPage, pageText } from '../lib/pdfkit.js';
 import { loadPdfLib, loadXLSX } from '../lib/scripts.js';
 import { itemsToLines, itemsToGrid } from '../lib/table.js';
 import { buildDocx, buildPptx, escapeXml } from '../lib/ooxml.js';
-import { download, baseName } from '../lib/files.js';
+import { download, makeZip, baseName, fmtBytes } from '../lib/files.js';
 
-const MODES = {
-  docx: { title: 'PDF 转 Word', icon: '📘', ext: 'docx', needsText: true, desc: '提取文字与段落生成可编辑的 .docx。只还原文字内容与层级，复杂版式（分栏、表格线）不会保留。' },
-  xlsx: { title: 'PDF 转 Excel', icon: '📗', ext: 'xlsx', needsText: true, desc: '按文字坐标还原成行列后导出 .xlsx。表格型 PDF 效果好；纯段落文本会退化成单列。' },
-  pptx: { title: 'PDF 转 PPT', icon: '📙', ext: 'pptx', needsText: false, desc: '每页渲染成一张图铺满一页幻灯片，导出 .pptx。适合把 PDF 当演示稿用，页面外观完全一致。' },
-  html: { title: 'PDF 转 HTML', icon: '🌐', ext: 'html', needsText: true, desc: '按坐标把文字绝对定位到 HTML，视觉上接近原版，文字可选中复制。' },
-};
+/**
+ * 五种目标格式合在一个入口里。
+ * 之前 Word / Excel / PPT / HTML / 图片 各占一张卡片，同一份 PDF 想换个格式
+ * 得先退出再进另一个工具；现在选格式即可，文件不用重新拖。
+ */
+const FORMATS = [
+  {
+    id: 'docx', label: 'Word 文档 (.docx)', short: 'Word', icon: '📘', ext: 'docx', needsText: true,
+    note: '导出可编辑的文字与段落层级。复杂版式（分栏、表格线、图片位置）不会保留 —— 这是纯前端转换的固有限制。',
+  },
+  {
+    id: 'xlsx', label: 'Excel 表格 (.xlsx)', short: 'Excel', icon: '📗', ext: 'xlsx', needsText: true,
+    note: '按文字坐标还原成行列。表格型 PDF 效果好；整段文字会退化成单列。',
+  },
+  {
+    id: 'pptx', label: 'PowerPoint (.pptx)', short: 'PPT', icon: '📙', ext: 'pptx', needsText: false,
+    note: '每页渲染成一张图铺满一页幻灯片，外观与原版完全一致，但内容不可编辑。',
+  },
+  {
+    id: 'html', label: '网页 (.html)', short: 'HTML', icon: '🌐', ext: 'html', needsText: true,
+    note: '按坐标绝对定位，视觉接近原版，文字可以选中复制。',
+  },
+  {
+    id: 'image', label: '图片 (PNG / JPG)', short: '图片', icon: '🖼️', ext: 'png', needsText: false,
+    note: '逐页导出图片，多页自动打包 zip。适合做预览图，或喂给 OCR 做文字识别。',
+  },
+];
 
 export const tool = {
   init(app) {
-    const mode = app.toolDef?.params?.mode || 'docx';
-    const cfg = MODES[mode] || MODES.docx;
-
     let src = null;
 
-    const page = toolPage({ title: cfg.title, icon: cfg.icon, desc: cfg.desc });
+    const page = toolPage({
+      title: 'PDF 转换',
+      icon: '🔄',
+      desc: '把 PDF 转成 Word / Excel / PPT / HTML 或图片。选好目标格式再点导出即可，换个格式不用重新拖文件。',
+    });
 
     const info = note('还没有选择文件');
     const dz = fileZone({
@@ -31,28 +53,81 @@ export const tool = {
       onFiles: (files) => load(files[0]),
     });
 
-    const rangeInput1 = textInput({ label: '转换页面', placeholder: '留空=全部' });
+    /* ---------- 目标格式 ---------- */
+    const fmtSel = select({
+      label: '目标格式', value: 'docx',
+      options: FORMATS.map((f) => [f.id, f.label]),
+      onChange: () => { sync(); schedulePreview(); },
+    });
+    const fmtNote = note('');
 
-    // 各模式专属选项
+    /* ---------- 通用选项 ---------- */
+    const rangeInput1 = textInput({ label: '转换页面', placeholder: '留空=全部，如 1-3,5' , onChange: schedulePreview });
+
+    /* ---------- 各格式专属选项 ---------- */
     const headingToggle = toggle({ label: '按字号识别标题', value: true });
-    const oneSheetToggle = toggle({ label: '每页一个工作表', value: true });
-    const dpiRange = rangeInput({ label: '幻灯片分辨率', value: 130, min: 60, max: 300, step: 10, format: (v) => v + ' DPI' });
     const gapToggle = toggle({ label: '按空行合并成段落', value: true });
+    const oneSheetToggle = toggle({ label: '每页一个工作表', value: true });
+    const dpiRange = rangeInput({ label: '渲染分辨率', value: 150, min: 50, max: 400, step: 10, format: (v) => v + ' DPI', onChange: schedulePreview });
+    const imgFmtSel = select({
+      label: '图片格式', value: 'png',
+      options: [['png', 'PNG（无损，体积大）'], ['jpeg', 'JPG（有损，体积小）']],
+      onChange: () => { sync(); schedulePreview(); },
+    });
+    const qualityRange = rangeInput({ label: 'JPG 质量', value: 85, min: 30, max: 100, step: 1, format: (v) => v + '%', onChange: schedulePreview });
+    const grayToggle = toggle({ label: '转灰度', value: false, onChange: schedulePreview });
 
-    const optionBox = fieldset('选项',
-      grid(rangeInput1),
-      ...(mode === 'docx' ? [headingToggle, gapToggle] : []),
-      ...(mode === 'xlsx' ? [oneSheetToggle] : []),
-      ...(mode === 'pptx' ? [dpiRange] : []),
-    );
-
+    const preview = previewPane('选好目标格式后，这里会显示第 1 页的导出效果');
     const bar = progress();
     const btnGo = button('转换并下载', run, { primary: true });
     btnGo.disabled = true;
 
-    page.add(dz, info, optionBox, bar.root);
+    page.add(
+      dz, info,
+      fieldset('目标格式', fmtSel, fmtNote),
+      fieldset('选项',
+        rangeInput1,
+        headingToggle, gapToggle, oneSheetToggle,
+        dpiRange,
+        grid(imgFmtSel, qualityRange), grayToggle,
+      ),
+      bar.root, preview,
+    );
     page.setActions(btnGo);
     app.main.append(page.root);
+
+    let timer = null;
+    let previewUrl = null;
+
+    /* ---------------- 界面同步 ---------------- */
+
+    const cur = () => FORMATS.find((f) => f.id === fmtSel.get()) || FORMATS[0];
+
+    function sync() {
+      const f = cur();
+      fmtNote.textContent = f.note;
+      fmtNote.className = 'hint';
+      btnGo.textContent = f.id === 'image' ? '导出图片' : `转换成 ${f.short}`;
+
+      const isImg = f.id === 'image';
+      headingToggle.root.classList.toggle('hidden', f.id !== 'docx');
+      gapToggle.root.classList.toggle('hidden', f.id !== 'docx');
+      oneSheetToggle.root.classList.toggle('hidden', f.id !== 'xlsx');
+      dpiRange.root.classList.toggle('hidden', !(f.id === 'pptx' || isImg));
+      imgFmtSel.root.classList.toggle('hidden', !isImg);
+      qualityRange.root.classList.toggle('hidden', !isImg || imgFmtSel.get() !== 'jpeg');
+      grayToggle.root.classList.toggle('hidden', !isImg);
+
+      // 只有导出图片时才有像素级预览可看
+      preview.root.classList.toggle('hidden', !isImg);
+      if (!isImg && previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
+    }
+
+    function schedulePreview() {
+      clearTimeout(timer);
+      if (fmtSel.get() !== 'image' || !src) return;
+      timer = setTimeout(() => doPreview().catch((e) => console.error(e)), 420);
+    }
 
     /* ---------------- 逻辑 ---------------- */
 
@@ -63,38 +138,45 @@ export const tool = {
         const doc = await openPdf(bytes);
         src = { name: file.name, bytes, numPages: doc.numPages };
         doc.destroy?.();
-        info.textContent = `${file.name} · ${src.numPages} 页`;
+        info.textContent = `${file.name} · ${src.numPages} 页 · ${fmtBytes(bytes.length)}`;
         info.className = 'hint';
         btnGo.disabled = false;
+        schedulePreview();
       } catch (err) {
         toast('打不开这个 PDF：' + err.message, 'error');
       }
     }
 
     async function run() {
+      const f = cur();
       const pdf = await openPdf(src.bytes);
       const pages = parsePageRange(rangeInput1.get(), pdf.numPages);
       if (!pages.length) { pdf.destroy?.(); throw new Error('页范围里没有有效页面'); }
 
-      // 需要文字的模式：先确认有文字层，避免导出空文件
-      if (cfg.needsText) {
+      // 需要文字层的格式先探测一下，避免导出空文件
+      if (f.needsText) {
         bar.show(0, '正在检查文字层…');
         const probe = await hasTextLayer(pdf, 3);
         if (!probe.hasText) {
           pdf.destroy?.(); bar.hide();
           info.className = 'hint error';
-          info.textContent = '这份 PDF 没有文字层（扫描件或纯图片），转成可编辑文档会得到空内容。可以先试「PDF 转 PPT」把每页转成图片，或先用 OCR 识别。';
-          toast('没有文字层，无法转换', 'error');
+          info.textContent = '这份 PDF 没有文字层（扫描件或纯图片），转成可编辑文档只会得到空内容。'
+            + '可以先选「PowerPoint」或「图片」把每页转成图，或者先用 OCR 识别文字。';
+          toast('没有文字层，无法转换成可编辑格式', 'error');
           return;
         }
       }
 
       const base = baseName(src.name);
-      if (mode === 'pptx') await runPptx(pdf, pages, base);
-      else if (mode === 'xlsx') await runXlsx(pdf, pages, base);
-      else if (mode === 'html') await runHtml(pdf, pages, base);
-      else await runDocx(pdf, pages, base);
-      pdf.destroy?.();
+      try {
+        if (f.id === 'docx') await runDocx(pdf, pages, base);
+        else if (f.id === 'xlsx') await runXlsx(pdf, pages, base);
+        else if (f.id === 'pptx') await runPptx(pdf, pages, base);
+        else if (f.id === 'html') await runHtml(pdf, pages, base);
+        else await runImage(pdf, pages, base);
+      } finally {
+        pdf.destroy?.();
+      }
     }
 
     /* ---------- Word ---------- */
@@ -120,7 +202,6 @@ export const tool = {
             if (h > median * 1.5) level = 1;
             else if (h > median * 1.2) level = 2;
           }
-          // 页与页之间、或原文段落间距较大时插入空段落
           if (gapToggle.get() && li > 0 && Math.abs(lines[li - 1].y - l.y) > h * 2.1) {
             paragraphs.push({ text: '' });
           }
@@ -183,11 +264,7 @@ export const tool = {
         bar.show(i / pages.length, `正在渲染第 ${pages[i]} 页…`);
         const { canvas, widthPt, heightPt } = await renderPage(pdf, pages[i], dpiRange.get() / 72);
         const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.9));
-        slides.push({
-          bytes: new Uint8Array(await blob.arrayBuffer()),
-          ext: 'jpeg',
-          widthPt, heightPt,
-        });
+        slides.push({ bytes: new Uint8Array(await blob.arrayBuffer()), ext: 'jpeg', widthPt, heightPt });
       }
       bar.set(0.92, '正在生成 pptx…');
       const blob = await buildPptx({ slides, title: base });
@@ -204,9 +281,8 @@ export const tool = {
         const { items, widthPt, heightPt } = await pageText(pdf, pages[i]);
         const spans = items.map((it) => {
           const top = heightPt - it.y - it.height * 0.82;
-          const left = it.x;
           const size = it.height * 0.95;
-          return `<span style="left:${left.toFixed(2)}px;top:${top.toFixed(2)}px;font-size:${size.toFixed(2)}px">${escapeXml(it.str)}</span>`;
+          return `<span style="left:${it.x.toFixed(2)}px;top:${top.toFixed(2)}px;font-size:${size.toFixed(2)}px">${escapeXml(it.str)}</span>`;
         }).join('\n');
         parts.push(`<section class="page" style="width:${widthPt.toFixed(0)}px;height:${heightPt.toFixed(0)}px">\n${spans}\n</section>`);
       }
@@ -232,6 +308,76 @@ ${parts.join('\n')}
       toast(`已导出 ${base}.html`, 'ok');
     }
 
-    return () => { src = null; };
+    /* ---------- 图片 ---------- */
+    async function renderToBlob(pdf, n, dpi, type, quality, gray) {
+      const { canvas } = await renderPage(pdf, n, dpi / 72);
+      let c = canvas;
+      if (gray) {
+        const c2 = document.createElement('canvas');
+        c2.width = canvas.width;
+        c2.height = canvas.height;
+        const ctx = c2.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, c2.width, c2.height);
+        ctx.filter = 'grayscale(1)';
+        ctx.drawImage(canvas, 0, 0);
+        c = c2;
+      }
+      const mime = type === 'png' ? 'image/png' : 'image/jpeg';
+      const blob = await new Promise((r) => c.toBlob(r, mime, type === 'png' ? undefined : quality));
+      return { blob, width: c.width, height: c.height };
+    }
+
+    async function doPreview() {
+      if (!src || fmtSel.get() !== 'image') return;
+      const pdf = await openPdf(src.bytes);
+      const { blob, width, height } = await renderToBlob(
+        pdf, 1, dpiRange.get(), imgFmtSel.get(), qualityRange.get() / 100, grayToggle.get());
+      pdf.destroy?.();
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = URL.createObjectURL(blob);
+      preview.set(
+        el('img', { src: previewUrl, alt: '导出预览' }),
+        el('p', { class: 'hint', text: `第 1 页：${width}×${height} 像素，约 ${fmtBytes(blob.size)}` }),
+      );
+    }
+
+    async function runImage(pdf, pages, base) {
+      const type = imgFmtSel.get();
+      const ext = type === 'png' ? 'png' : 'jpg';
+      const outputs = [];
+      let bytesTotal = 0;
+
+      for (let i = 0; i < pages.length; i++) {
+        bar.show(i / pages.length, `正在渲染第 ${pages[i]} 页（${i + 1}/${pages.length}）`);
+        const { blob } = await renderToBlob(pdf, pages[i], dpiRange.get(), type, qualityRange.get() / 100, grayToggle.get());
+        const data = new Uint8Array(await blob.arrayBuffer());
+        bytesTotal += data.length;
+        outputs.push({
+          name: pages.length > 1 ? `${base}_${String(pages[i]).padStart(3, '0')}.${ext}` : `${base}.${ext}`,
+          data,
+        });
+      }
+
+      if (outputs.length === 1) {
+        download(new Blob([outputs[0].data], { type: type === 'png' ? 'image/png' : 'image/jpeg' }), outputs[0].name);
+        toast(`已导出 ${outputs[0].name}`, 'ok');
+        bar.set(1, `完成：${outputs[0].name}（${fmtBytes(bytesTotal)}）`);
+      } else {
+        bar.set(0.9, '正在打包 zip…');
+        const zip = await makeZip(outputs);
+        const name = `${base}_图片_${outputs.length}张.zip`;
+        download(zip, name);
+        toast(`已导出 ${name}`, 'ok');
+        bar.set(1, `完成：${outputs.length} 张图片，共 ${fmtBytes(bytesTotal)}`);
+      }
+    }
+
+    sync();
+    return () => {
+      clearTimeout(timer);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      src = null;
+    };
   },
 };

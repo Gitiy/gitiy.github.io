@@ -12,7 +12,7 @@
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
    ============================================================ */
 
-const VERSION = 'Tools-v5';
+const VERSION = 'Tools-v7';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -65,6 +65,9 @@ const CORE = [
   'scripts/tools/dev-time.js',
   'scripts/tools/dev-url.js',
   'scripts/tools/dev-uuid.js',
+  'scripts/tools/dev-wordcloud.js',
+  'scripts/tools/dev-zh.js',
+  'scripts/tools/dev-qrcode.js',
   'scripts/tools/image-base64.js',
   'scripts/tools/image-batch.js',
   'scripts/tools/image-compress.js',
@@ -84,7 +87,6 @@ const CORE = [
   'scripts/tools/pdf-resize.js',
   'scripts/tools/pdf-split.js',
   'scripts/tools/pdf-text.js',
-  'scripts/tools/pdf-to-image.js',
   'scripts/tools/pdf-watermark.js',
   'scripts/tools/sheet-tools.js',
   'scripts/tools/text-dedupe.js',
@@ -101,6 +103,11 @@ const CORE = [
   './vendor/sql-formatter.min.js',
   './vendor/jjdecode.js',
   './vendor/js-beautify.esm.js',
+  './vendor/wordcloud2.js',
+  './vendor/qrcode.mjs',
+  './vendor/qrcode_UTF8.mjs',
+  './vendor/jsQR.js',
+  './vendor/opencc/t2cn.js',
   './vendor/smol-toml/dist/date.js',
   './vendor/smol-toml/dist/error.js',
   './vendor/smol-toml/dist/extract.js',

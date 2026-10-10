@@ -656,6 +656,9 @@ input.range {
 .button:hover:not(:disabled) {
     background: var(--surface-3);
     border-color: var(--fg-3);
+    /* 这里必须重设文字色：普通按钮是 --fg，但主按钮是 --accent-fg，
+       若沿用主按钮的颜色而背景又变成浅灰，文字就看不见了 */
+    color: var(--fg);
 }
 
 .button:disabled {
@@ -670,13 +673,23 @@ input.range {
     font-weight: 600;
 }
 
+/* 主按钮悬停时保持强调色底，只做亮度变化 —— 不能套用上面的灰底规则 */
 .button.primary:hover:not(:disabled) {
-    filter: brightness(1.08);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+    filter: brightness(1.1);
 }
 
 .button.danger {
     color: var(--err);
     border-color: color-mix(in srgb, var(--err) 40%, transparent);
+}
+
+.button.danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--err) 12%, var(--surface-2));
+    border-color: var(--err);
+    color: var(--err);
 }
 
 .button.small {

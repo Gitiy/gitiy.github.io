@@ -8,17 +8,29 @@ import { download, makeZip, baseName, fmtBytes } from '../lib/files.js';
 const ACCEPT = '.docx,.docm,.dotx,.xlsx,.xlsm,.xls,.csv,.tsv,.pptx,.pptm,.potx';
 const KIND = { docx: 'Word', xlsx: 'Excel', csv: 'CSV', tsv: 'TSV', pptx: 'PowerPoint' };
 
+/**
+ * 输出成 PDF 还是图片，只是最后一步打包方式不同 —— 渲染管线完全一样，
+ * 所以合成一个入口，用一个下拉框切换即可。
+ */
+const OUTPUTS = [
+  {
+    id: 'pdf', label: '合并成 PDF', short: 'PDF',
+    note: '每个文件转成一份 PDF，尽量保留原始排版。多个文件会打包成 zip。',
+  },
+  {
+    id: 'image', label: '逐页导出图片', short: '图片',
+    note: '每个文件逐页导出 PNG / JPG，多页自动打包 zip。适合做预览图或喂给 OCR。',
+  },
+];
+
 export const tool = {
   init(app) {
-    const mode = app.toolDef?.params?.mode === 'image' ? 'image' : 'pdf';
     const items = [];   // { name, buffer, kind, numPages }
 
     const page = toolPage({
-      title: mode === 'pdf' ? 'Office 转 PDF' : 'Office 转图片',
-      icon: mode === 'pdf' ? '📄' : '🏞️',
-      desc: mode === 'pdf'
-        ? '把 Word / Excel / PowerPoint 转成 PDF，尽量保留原始排版。全部在本地渲染，文件不会上传。'
-        : '把 Word / Excel / PowerPoint 逐页导出成图片，多页自动打包 zip。',
+      title: 'Office 转换',
+      icon: '📄',
+      desc: '把 Word / Excel / PowerPoint 转成 PDF 或图片，尽量保留原始排版。全部在本地渲染，文件不会上传。',
     });
 
     const listHost = el('div', { class: 'filelist' });
@@ -30,25 +42,37 @@ export const tool = {
       onFiles: addFiles,
     });
 
+    const outSel = select({
+      label: '输出为', value: 'pdf',
+      options: OUTPUTS.map((o) => [o.id, o.label]),
+      onChange: sync,
+    });
+    const outNote = note('');
+
     const dpiRange = rangeInput({
-      label: '分辨率', value: mode === 'pdf' ? 150 : 150, min: 72, max: 300, step: 6,
+      label: '分辨率', value: 150, min: 72, max: 300, step: 6,
       format: (v) => v + ' DPI',
+      hint: '文档里有小字号或细表格线时，调到 200 以上会更清楚。',
     });
     const qualityRange = rangeInput({
       label: 'JPEG 质量', value: 88, min: 40, max: 100, step: 1, format: (v) => v + '%',
     });
-    const pngToggle = toggle({
-      label: mode === 'image' ? '输出 PNG（无损，体积大）' : 'PDF 内嵌 PNG（无损，体积大）',
-      value: false,
-    });
+    const pngToggle = toggle({ label: 'PNG 无损输出（画面更准，体积更大）', value: false });
 
     const bar = progress();
-    const btnGo = button(mode === 'pdf' ? '转换并下载' : '导出图片', run, { primary: true });
+    const btnGo = button('转换并下载', run, { primary: true });
     btnGo.disabled = true;
 
-    page.add(dz, listHost, fieldset('输出设置', grid(dpiRange, qualityRange), pngToggle), bar.root);
+    page.add(dz, listHost, fieldset('输出设置', outSel, outNote, grid(dpiRange, qualityRange), pngToggle), bar.root);
     page.setActions(btnGo, button('清空', clearAll));
     app.main.append(page.root);
+
+    function sync() {
+      const o = OUTPUTS.find((x) => x.id === outSel.get()) || OUTPUTS[0];
+      outNote.textContent = o.note;
+      outNote.className = 'hint';
+      btnGo.textContent = o.id === 'pdf' ? '转换成 PDF' : '导出图片';
+    }
 
     /* ---------------- 逻辑 ---------------- */
 
@@ -120,10 +144,10 @@ export const tool = {
 
     async function run() {
       const officeLib = await getOffice();
-      const mode2 = mode;
+      const out = outSel.get();
       const base = items.length === 1 ? baseName(items[0].name) : `Office转换_${items.length}份`;
       const outputs = [];
-      const PDFLib = mode2 === 'pdf' ? await loadPdfLib() : null;
+      const PDFLib = out === 'pdf' ? await loadPdfLib() : null;
 
       for (let n = 0; n < items.length; n++) {
         const it = items[n];
@@ -131,14 +155,14 @@ export const tool = {
         const pages = await convertOne(officeLib, it);
         render();
 
-        if (mode2 === 'pdf') {
+        if (out === 'pdf') {
           const doc = await PDFLib.PDFDocument.create();
           for (const p of pages) {
             const img = p.ext === 'png' ? await doc.embedPng(p.bytes) : await doc.embedJpg(p.bytes);
             const pg = doc.addPage([p.widthPt, p.heightPt]);
             pg.drawImage(img, { x: 0, y: 0, width: p.widthPt, height: p.heightPt });
           }
-          doc.setProducer('Tools · Office 转 PDF');
+          doc.setProducer('Tools · Office 转换');
           doc.setTitle(baseName(it.name));
           doc.setModificationDate(new Date());
           outputs.push({
@@ -157,7 +181,7 @@ export const tool = {
       }
 
       if (outputs.length === 1) {
-        const mime = mode2 === 'pdf' ? 'application/pdf' : (pngToggle.get() ? 'image/png' : 'image/jpeg');
+        const mime = out === 'pdf' ? 'application/pdf' : (pngToggle.get() ? 'image/png' : 'image/jpeg');
         download(new Blob([outputs[0].data], { type: mime }), outputs[0].name);
         bar.set(1, `完成：${outputs[0].name}（${fmtBytes(outputs[0].data.length)}）`);
         toast(`已导出 ${outputs[0].name}`, 'ok');
@@ -171,6 +195,7 @@ export const tool = {
       }
     }
 
+    sync();
     return () => { items.length = 0; };
   },
 };

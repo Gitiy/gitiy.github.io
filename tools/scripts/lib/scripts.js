@@ -60,6 +60,48 @@ export const loadTurndown = () => need('turndown.min.js', 'TurndownService');
 export const loadCronstrue = () => need('cronstrue-i18n.min.js', 'cronstrue');
 export const loadXml = () => need('fxp.min.js', 'fxp');
 export const loadSqlFormatter = () => need('sql-formatter.min.js', 'sqlFormatter');
+export const loadWordCloud = () => need('wordcloud2.js', 'WordCloud');
+export const loadJsQR = () => need('jsQR.js', 'jsQR');
+
+/** 二维码生成器是 ESM，UTF-8 支持是它的一个可选补丁模块 */
+let qrcodePromise = null;
+export function loadQrcode() {
+  if (!qrcodePromise) {
+    qrcodePromise = Promise.all([
+      import(vendorUrl('qrcode.mjs')),
+      import(vendorUrl('qrcode_UTF8.mjs')),
+    ]).then(([qr, utf8]) => {
+      const qrcode = qr.default;
+      // 注意：qrcode-generator 的 UTF-8 支持是**直接替换** stringToBytes，
+      // 没有 stringToBytesFuncs 那种注册表；不换的话中文会编成乱码。
+      qrcode.stringToBytes = utf8.stringToBytes;
+      return qrcode;
+    });
+  }
+  return qrcodePromise;
+}
+
+/**
+ * opencc-js 的简繁词典。
+ *
+ * 两个方向的词典是两个独立的 UMD 包，各自都是 `globalThis.OpenCC = {}` ——
+ * 是**覆盖**而不是合并，所以不能先后加载后一起用。
+ * 这里在每次加载完成后立刻把 Converter 引用取出来存好，两个方向就都能用了。
+ * 另外每个包体积差很多（cn2t 1.1MB / t2cn 107KB），所以按方向按需加载。
+ */
+const openccCache = new Map();
+export function loadOpenCC(bundle) {
+  if (!openccCache.has(bundle)) {
+    openccCache.set(bundle, loadScript(`opencc/${bundle}.js`).then(() => {
+      const api = globalThis.OpenCC;
+      if (!api || typeof api.Converter !== 'function') {
+        throw new Error('简繁词典加载失败');
+      }
+      return api.Converter;   // 关键：立刻取引用，否则会被下一次加载覆盖掉
+    }));
+  }
+  return openccCache.get(bundle);
+}
 
 /** svgo 是 ESM（jsDelivr 打包版），用动态 import */
 let svgoPromise = null;

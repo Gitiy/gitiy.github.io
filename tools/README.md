@@ -21,24 +21,23 @@
 | PDF 提取文字 | 按页提取纯文本，可复制或导出 txt；扫描件会明确提示 |
 | PDF 图片提取 | 原样导出内嵌图片，JPEG 直接取原始字节不重新编码 |
 
-### 格式转换（5）
+### 格式转换（2）
 
 | 工具 | 说明 |
 |---|---|
-| PDF 转 Word | 提取文字与段落生成可编辑 .docx（只还原文字，不还原复杂版式） |
-| PDF 转 Excel | 按文字坐标还原成行列导出 .xlsx，表格型 PDF 效果好 |
-| PDF 转 PPT | 每页渲染成一张图铺满一页幻灯片 |
-| PDF 转 HTML | 按坐标绝对定位，视觉接近原版，文字可选中 |
+| **PDF 转换** | 一个入口切换 Word / Excel / PPT / HTML / 图片 五种目标格式。换格式不用重新拖文件，选项与按钮文案跟着切换 |
 | 图片转 PDF | 多图合成 PDF，可设页面尺寸、边距、填充方式 |
 
-### Office 工具（4）
+### Office 工具（2）
 
 | 工具 | 说明 |
 |---|---|
-| Office 转 PDF | Word / Excel / PowerPoint → PDF，尽量保留排版 |
-| Office 转图片 | Word / Excel / PowerPoint 逐页导出图片 |
-| 表格格式转换 | Excel / CSV / TSV 互转，也可导出 JSON / HTML / Markdown |
-| Excel 转 JSON | 首行作为字段名，输出对象数组或二维数组 |
+| **Office 转换** | Word / Excel / PowerPoint → PDF 或图片，一个下拉框切换输出形式 |
+| **表格转换** | Excel / CSV / TSV 互转，也可导出 JSON / HTML / Markdown；选到 JSON 时才出现 JSON 专属选项 |
+
+> 这三组原先拆成了 9 张卡片（PDF 转 Word / Excel / PPT / HTML / 图片、Office 转 PDF / 图片、
+> 表格格式转换 / Excel 转 JSON），同一件事按目标格式分成多个入口反而增加选择成本。
+> 合并后底层模块没变，只是把「选格式」从「选卡片」挪进了工具内部。
 
 ### 图片工具（7）
 
@@ -52,7 +51,7 @@
 | 图片转 Base64 | 转 Data URL / CSS 背景 / HTML img 标签 / Markdown，可直接内联进网页 |
 | 图片取色器 | 点图取色，或自动提取主色板（中位切分法），给出 HEX / RGB / HSL |
 
-### 开发者工具（22）
+### 开发者工具（25）
 
 | 工具 | 说明 |
 |---|---|
@@ -78,6 +77,9 @@
 | 时间戳转换 | 秒/毫秒自动识别、时区切换、自定义格式、相对时间 |
 | URL 解析与编辑 | 拆解各组成部分，可视化增删改查询参数 |
 | 测试数据生成 | 姓名/邮箱/手机号/身份证号（校验位正确）/地址/公司，导出 JSON / CSV / SQL / TS |
+| **简繁转换** | 简体 ↔ 繁体，支持台湾正体 / 香港繁体 / 通用繁体。用 OpenCC 词组词典，「头发 → 頭髮」这类看词境的转换也正确 |
+| **二维码生成与识别** | 文本 / 网址 / WiFi / 名片 / 短信 / 电话 / 邮件七种内容类型，导出 PNG 或矢量 SVG；也能识别图片里的二维码并框出位置 |
+| **词云图生成** | 把文字做成词云图，可选配色、外形、旋转比例与字号范围，导出 PNG。中文用 2/3 字组合近似分词 |
 
 ### 文本工具（2）
 
@@ -109,6 +111,10 @@ AdBlock Hosts Sort、FlacMate（FLAC 元数据）、密码生成器、X-APM 转 
 | cronstrue | Cron 表达式的中文描述 |
 | jjdecode | JJEncode 解码（纯字符串算法，不含 eval） |
 | js-beautify | JS 代码格式化 |
+| opencc-js | 简繁转换词典（cn2t 1.1MB / t2cn 107KB，按方向按需加载） |
+| qrcode-generator | 二维码生成（另有 UTF-8 编码补丁模块） |
+| jsQR | 二维码识别 |
+| wordcloud2.js | 词云布局（螺旋排布 + 碰撞检测） |
 | **jsquash（WASM）** | MozJPEG / OxiPNG / libavif / Lanczos3 四个图片编解码器 |
 
 **自己写了三块：**
@@ -220,12 +226,12 @@ export const tool = {
 
 `service-worker.js` 的策略：
 
-- 应用外壳、全部工具模块、共享库、图标在 `install` 阶段预缓存（**91 个文件**）
+- 应用外壳、全部工具模块、共享库、图标在 `install` 阶段预缓存
   → **装好即可离线使用**
-- 体积小的第三方库（js-yaml / turndown / cronstrue / sql-formatter / smol-toml 等）
-  也一起预缓存，所以开发者工具离线也能用
-- **jsquash 的 WASM 编解码器不预缓存**（4.3 MB，其中 AVIF 独占 3.4 MB），
-  首次用到时按需写入缓存，之后离线可用
+- 体积小的第三方库（js-yaml / turndown / cronstrue / sql-formatter / smol-toml /
+  wordcloud2 / qrcode / jsQR / opencc 的 t2cn 等）也一起预缓存，所以开发者工具离线也能用
+- **大文件不预缓存，首次用到时按需写入**：jsquash 的 WASM 编解码器（4.2 MB，AVIF 独占 3.4 MB）
+  与 opencc 的 cn2t 简→繁词典（1.1 MB）
 - 本机文件（html/css/js/json）走**网络优先**，改完代码刷新一次就能看到新版
 - `vendor/` 其余部分走缓存优先（pdf.js worker 有 1 MB，走缓存最快）
 - cmaps / standard_fonts 首次用到时缓存，之后离线可用

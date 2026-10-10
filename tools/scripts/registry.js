@@ -84,12 +84,6 @@ export const TOOLS = [
     keywords: 'json 转 typescript 类型 接口 interface 生成 go java python rust 代码生成',
   },
   {
-    id: 'dev-data-convert', name: '数据格式转换', cat: 'dev', icon: '🔀',
-    desc: 'JSON / YAML / TOML / XML / CSV / TSV 之间互转。CSV 与 JSON 互转时按首行做字段名。',
-    module: './tools/dev-data-convert.js',
-    keywords: 'json yaml toml xml csv tsv 转换 互转 配置 序列化',
-  },
-  {
     id: 'dev-radix', name: '进制转换', cat: 'dev', icon: '🔢',
     desc: '在 2–36 任意进制之间互转，用 BigInt 计算所以 64 位以上的大整数也不会丢精度。附带位视图。',
     module: './tools/dev-radix.js',
@@ -124,18 +118,6 @@ export const TOOLS = [
     desc: '把挤成一行的 SQL 排成可读的缩进结构，支持十多种数据库方言，可调关键字大小写与缩进。',
     module: './tools/dev-sql.js',
     keywords: 'sql 格式化 美化 mysql postgres oracle 方言 缩进 format',
-  },
-  {
-    id: 'dev-html-md', name: 'HTML 转 Markdown', cat: 'dev', icon: '📝',
-    desc: '把网页内容或富文本转成 Markdown，表格与代码块都能保留，适合粘进文档与 Issue。',
-    module: './tools/dev-html-md.js',
-    keywords: 'html markdown md 转换 富文本 turndown 文档',
-  },
-  {
-    id: 'dev-svg', name: 'SVG 压缩优化', cat: 'dev', icon: '🪶',
-    desc: '用 SVGO 压缩 SVG：去掉编辑器残留元数据、注释与无用小数值，画面完全一致。',
-    module: './tools/dev-svg.js',
-    keywords: 'svg 压缩 优化 精简 svgo 图标 体积',
   },
   {
     id: 'dev-cidr', name: 'CIDR / 子网计算', cat: 'dev', icon: '🌐',
@@ -241,6 +223,18 @@ export const TOOLS = [
     module: './tools/image-to-pdf.js',
     keywords: '图片 转pdf 合成 jpg png 合并',
   },
+  {
+    id: 'convert-data', name: '数据格式转换', cat: 'convert', icon: '🔀',
+    desc: 'JSON / YAML / TOML / XML / CSV / TSV 之间互转。CSV 与 JSON 互转时按首行做字段名。',
+    module: './tools/convert-data.js',
+    keywords: 'json yaml toml xml csv tsv 转换 互转 配置 序列化',
+  },
+  {
+    id: 'convert-html-md', name: 'HTML 转 Markdown', cat: 'convert', icon: '📝',
+    desc: '把网页内容或富文本转成 Markdown，表格与代码块都能保留，适合粘进文档与 Issue。',
+    module: './tools/convert-html-md.js',
+    keywords: 'html markdown md 转换 富文本 turndown 文档',
+  },
 
   /* ============================================================
      Office 工具
@@ -308,6 +302,12 @@ export const TOOLS = [
     desc: '生成文本 / 网址 / WiFi / 名片 / 短信 / 电话 / 邮件二维码，导出 PNG 或矢量 SVG；也能识别图片里的二维码。',
     module: './tools/image-qrcode.js',
     keywords: '二维码 qrcode qr 扫码 生成 识别 解码 wifi 名片 vcard 条形码',
+  },
+  {
+    id: 'image-svg', name: 'SVG 压缩优化', cat: 'image', icon: '🪶',
+    desc: '用 SVGO 压缩 SVG：去掉编辑器残留元数据、注释与无用小数值，画面完全一致。',
+    module: './tools/image-svg.js',
+    keywords: 'svg 压缩 优化 精简 svgo 图标 体积 矢量',
   },
 
   /* ============================================================

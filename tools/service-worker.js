@@ -12,7 +12,7 @@
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
    ============================================================ */
 
-const VERSION = 'Tools-v10';
+const VERSION = 'Tools-v11';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -43,16 +43,16 @@ const CORE = [
   'scripts/lib/table.js',
 
   // 工具模块
+  'scripts/tools/convert-data.js',
+  'scripts/tools/convert-html-md.js',
   'scripts/tools/dev-case.js',
   'scripts/tools/dev-cidr.js',
   'scripts/tools/dev-cron.js',
   'scripts/tools/dev-crypto.js',
   'scripts/tools/dev-curl.js',
-  'scripts/tools/dev-data-convert.js',
   'scripts/tools/dev-deobfuscate.js',
   'scripts/tools/dev-encode.js',
   'scripts/tools/dev-hash.js',
-  'scripts/tools/dev-html-md.js',
   'scripts/tools/dev-json-ts.js',
   'scripts/tools/dev-json.js',
   'scripts/tools/dev-jwt.js',
@@ -61,7 +61,6 @@ const CORE = [
   'scripts/tools/dev-regex.js',
   'scripts/tools/dev-sample.js',
   'scripts/tools/dev-sql.js',
-  'scripts/tools/dev-svg.js',
   'scripts/tools/dev-time.js',
   'scripts/tools/dev-url.js',
   'scripts/tools/dev-uuid.js',
@@ -72,6 +71,7 @@ const CORE = [
   'scripts/tools/image-palette.js',
   'scripts/tools/image-qrcode.js',
   'scripts/tools/image-resize.js',
+  'scripts/tools/image-svg.js',
   'scripts/tools/image-to-pdf.js',
   'scripts/tools/image-watermark.js',
   'scripts/tools/office-convert.js',

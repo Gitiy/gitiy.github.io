@@ -16,11 +16,21 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
 <link rel="stylesheet" href="styles.css">
 <script>
-  // 在首屏渲染前就定好主题，避免手动指定亮/暗时闪一下默认配色
+  // 首屏渲染前就把主题和内嵌状态定好，避免闪一下默认配色 / 多出一块品牌区
   (function () {
+    var root = document.documentElement;
+
+    // 被工具箱外壳用 iframe 嵌进来时，收起自己的品牌区 —— 顶栏由外壳提供
     try {
-      var t = localStorage.getItem('scanlike.theme.v1');
-      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      if (window.self !== window.top) root.dataset.embedded = '1';
+    } catch (e) {
+      root.dataset.embedded = '1';   // 读 window.top 抛错 = 跨源被嵌，同样处理
+    }
+
+    // 主题与工具箱外壳共用 tools.theme 这一个键：没有该键表示跟随系统
+    try {
+      var t = localStorage.getItem('tools.theme');
+      if (t === 'light' || t === 'dark') root.dataset.theme = t;
     } catch (e) {}
   })();
 </script>
@@ -181,11 +191,11 @@
   <div id="toasts" class="toasts"></div>
 </div>
 
-<script src="./vendor/pdf-lib.min.js"></script>
-<script src="./vendor/jszip.min.js"></script>
-<script src="./vendor/docx-preview.min.js"></script>
-<script src="./vendor/xlsx.full.min.js"></script>
-<script src="./vendor/html-to-image.js"></script>
+<script src="../vendor/pdf-lib.min.js"></script>
+<script src="../vendor/jszip.min.js"></script>
+<script src="../vendor/docx-preview.min.js"></script>
+<script src="../vendor/xlsx.full.min.js"></script>
+<script src="../vendor/html-to-image.js"></script>
 <script>
   // 直接双击 index.html（file://）时浏览器会因 CORS 拒绝加载 ES 模块，这里给出明确指引
   if (location.protocol === 'file:') {

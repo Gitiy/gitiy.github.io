@@ -6,13 +6,14 @@
    - 其余本机文件（html / css / js / json）→ 网络优先，失败回落缓存
      这样改完代码刷新一次就能看到新版，同时断网时依然可用
    - 其它同源请求（图标、cmaps、standard_fonts 等）→ 缓存优先，首次用到时写入
-   - 子应用 tools/scanlike/ 有它自己的 Service Worker，本 SW 不插手
+   - 内嵌子应用 tools/scanlike/ 由本 SW 一并接管（它过去自带的 sw.js 已移除）
 
    注意：Cache Storage 按 origin 共享。同站有别的应用也注册了 SW，
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
+   唯一的例外是 LEGACY_PREFIXES 里那些已经废弃、不会再有人清理的前缀。
    ============================================================ */
 
-const VERSION = 'Tools-v11';
+const VERSION = 'Tools-v13';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -130,10 +131,28 @@ const CORE = [
   'images/icons/icon-maskable-192x192.png',
   'images/icons/icon-maskable-512x512.png',
 
+  // 内嵌子应用 ScanLike
+  // 它原来自带一个 sw.js（前缀 scanlike-），现已并入本 SW，和其余工具共用一套缓存。
+  // 依赖库（pdf.js / pdf-lib / xlsx / docx-preview / jszip / html-to-image / cmaps /
+  // standard_fonts）全部复用 ../vendor/ 下的同一份文件，不再各存一份副本；
+  // 它们体积大，和其余工具的重型依赖一样不预缓存，首次在线用到时按
+  // 「vendor 缓存优先」的规则自动落盘。
+  'scanlike/',
+  'scanlike/index.html',
+  'scanlike/styles.css',
+  'scanlike/app.js',
+  'scanlike/effects.js',
+  'scanlike/office.js',
+  'scanlike/scan-worker.js',
+  'scanlike/icon.svg',
+  'scanlike/icon-180.png',
+  'scanlike/icon-192.png',
+  'scanlike/icon-512.png',
+  'scanlike/manifest.webmanifest',
 ];
 
-// 子应用目录：交给它自己的 SW 处理
-const subAppPath = new URL('scanlike/', self.location).pathname;
+// 已经废弃的缓存前缀：ScanLike 过去自带 SW，那批缓存现在没人清理了，激活时顺手回收
+const LEGACY_PREFIXES = ['scanlike-'];
 
 // 这些路径走网络优先，保证改动后刷新一次即可生效
 const NETWORK_FIRST = /\.(?:html|css|js|mjs|json|webmanifest)$/i;
@@ -152,7 +171,8 @@ self.addEventListener('activate', (e) => {
     const keys = await caches.keys();
     await Promise.all(
       keys
-        .filter((k) => k.indexOf(CACHE_PREFIX) === 0 && k !== VERSION)
+        .filter((k) => (k.indexOf(CACHE_PREFIX) === 0 && k !== VERSION)
+          || LEGACY_PREFIXES.some((p) => k.indexOf(p) === 0))
         .map((k) => caches.delete(k))
     );
     await self.clients.claim();
@@ -165,7 +185,6 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.origin) return;
-  if (url.pathname.indexOf(subAppPath) === 0) return;
 
   // vendor 里都是体积大且不常变的库，缓存优先能省掉每次 1MB 的 worker 下载
   const inVendor = url.pathname.includes('/vendor/');

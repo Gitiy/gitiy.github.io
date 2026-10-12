@@ -4,7 +4,7 @@
    无水印 · 无页数/体积限制 · 可完全离线运行
    ============================================================ */
 
-import * as pdfjsLib from './vendor/pdf.min.mjs';
+import * as pdfjsLib from '../vendor/pdf.min.mjs';
 import {
   MAX_PIXELS, clamp, round, makeCanvas, fmtSize, download, canvasToBlob,
   parsePageRange, zipStore, processCanvas, pageSeed,
@@ -12,15 +12,18 @@ import {
 } from './effects.js';
 import { isOfficeFile, loadOffice } from './office.js';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.min.mjs', import.meta.url).href;
-const CMAP_URL = new URL('./vendor/cmaps/', import.meta.url).href;
-const STD_FONT_URL = new URL('./vendor/standard_fonts/', import.meta.url).href;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('../vendor/pdf.worker.min.mjs', import.meta.url).href;
+const CMAP_URL = new URL('../vendor/cmaps/', import.meta.url).href;
+const STD_FONT_URL = new URL('../vendor/standard_fonts/', import.meta.url).href;
 const { PDFDocument } = PDFLib;
 
 const LS_SETTINGS = 'scanlike.settings.v1';
 const LS_PRESETS = 'scanlike.presets.v1';
 const LS_OVERLAYS = 'scanlike.overlays.v1';
-const LS_THEME = 'scanlike.theme.v1';
+// 主题与工具箱外壳共用同一个键：'light' / 'dark' / 键不存在（跟随系统）。
+// 这样在外壳顶栏切主题，进到这里也是一致的；反过来也一样。
+const LS_THEME = 'tools.theme';
+const LS_THEME_LEGACY = 'scanlike.theme.v1';
 
 const $ = (id) => document.getElementById(id);
 
@@ -57,13 +60,33 @@ function applyTheme() {
 function cycleTheme() {
   const i = THEMES.indexOf(state.theme);
   state.theme = THEMES[(i + 1) % THEMES.length];
-  try { localStorage.setItem(LS_THEME, state.theme); } catch {}
+  writeTheme(state.theme);
   applyTheme();
   setStatus(`主题：${THEME_LABEL[state.theme]}`);
 }
 
+/* 内部用 'auto' 表达「跟随系统」，落盘时映射成「键不存在」 */
+function writeTheme(t) {
+  try {
+    if (t === 'auto') localStorage.removeItem(LS_THEME);
+    else localStorage.setItem(LS_THEME, t);
+  } catch { /* 隐私模式忽略 */ }
+}
+
+const themeFromStored = (v) => (v === 'light' || v === 'dark' ? v : 'auto');
+
 // 跟随系统时，系统切换主题要实时响应
 darkQuery.addEventListener('change', () => { if (state.theme === 'auto') applyTheme(); });
+
+/*
+ * 内嵌在工具箱外壳里时，两边读的是同一个 localStorage 键。
+ * 在外壳顶栏点主题按钮，这里会收到 storage 事件，跟着一起切。
+ */
+window.addEventListener('storage', (e) => {
+  if (e.key !== null && e.key !== LS_THEME) return;
+  state.theme = themeFromStored(e.newValue);
+  applyTheme();
+});
 
 /* ---------------------------------------------------------- 本地持久化 */
 
@@ -1668,7 +1691,16 @@ function loadSettings() {
   } catch {}
   try {
     const t = localStorage.getItem(LS_THEME);
-    if (THEMES.includes(t)) state.theme = t;
+    if (t === 'light' || t === 'dark') state.theme = t;
+    else if (t === null) {
+      // 首次跑到新版本：把老的 scanlike.theme.v1 迁移到共用键上
+      const old = localStorage.getItem(LS_THEME_LEGACY);
+      if (THEMES.includes(old)) {
+        state.theme = old;
+        writeTheme(old);
+      }
+      localStorage.removeItem(LS_THEME_LEGACY);
+    }
   } catch {}
 }
 
@@ -2332,7 +2364,11 @@ setStatus('就绪 · 拖入 PDF / Word / Excel / PPT / 图片开始');
   }
 })();
 
-/* ---------- 离线能力（Service Worker） ---------- */
+/* ---------- 离线能力 ----------
+ * 本应用不再自己注册 Service Worker：它已经被并入工具箱的 SW
+ * （../service-worker.js，作用域 /tools/），和其余 50 多个工具走同一套缓存。
+ * 这里只保留状态角标的显示逻辑。
+ */
 const netBadge = $('netBadge');
 function updateNetBadge() {
   if (!netBadge) return;
@@ -2349,12 +2385,11 @@ function updateNetBadge() {
 window.addEventListener('online', updateNetBadge);
 window.addEventListener('offline', updateNetBadge);
 
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+if ('serviceWorker' in navigator) {
   const hadController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('./sw.js').then(() => updateNetBadge()).catch(() => {});
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     updateNetBadge();
-    // 首次加载时 SW 接管不算"更新"；之后接管说明有新版本
+    // 首次加载时 SW 接管不算"更新"；之后接管说明工具箱发了新版本
     if (hadController) {
       toast('ok', '已更新到新版本', '刷新页面即可使用最新代码。', 15000);
     }

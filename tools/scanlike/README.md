@@ -10,27 +10,32 @@
 
 ## 一、怎么用
 
-**在线用**：直接打开 <https://gitiy.github.io/tools/scanlike/>，或从 <https://gitiy.github.io/tools/> 的工具清单进入。
+**在线用**：从 <https://gitiy.github.io/tools/> 的工具清单点进去即可 —— 它会**内嵌在工具箱里**打开，
+顶栏和返回条都是工具箱的，主题也跟着走。想整屏用就点右上角的「全屏打开 ↗」，
+或直接访问 <https://gitiy.github.io/tools/scanlike/>。
 
 **本机用**（不联网也能跑）：
 
 1. 双击本目录下的 **`启动.bat`**（Windows）或执行 **`./start.sh`**（macOS / Linux）。
-2. 浏览器自动打开 `http://127.0.0.1:8765/`。
+2. 浏览器自动打开 `http://127.0.0.1:8765/scanlike/`。
 3. 把文件拖进左侧队列 → 右边实时预览 → 满意后点右上角 **导出**。
 
 > 关闭那个黑色命令行窗口 = 停止服务。
 
+启动脚本服务的是**上一层目录**（`tools/`），因为依赖库统一放在 `../vendor/`，
+只服务 `scanlike/` 这一个子目录会取不到它们。
+
 **不要直接双击 `index.html`。** 浏览器禁止 `file://` 加载本工具需要的 ES 模块与 PDF 渲染线程，
 直接打开会看到提示，按提示用启动脚本即可。
 
-没有 Python 也行，任意静态服务器都可以：
+没有 Python 也行，任意静态服务器都可以（注意根目录要是 `tools/`）：
 
 ```bash
-npx --yes serve -l 8765 .
+cd .. && npx --yes serve -l 8765 .
 ```
 
 **手机上也能用**：手机与本机连同一个 Wi-Fi，把 `启动.bat` 里的地址改成局域网 IP
-（`python -m http.server 8765 --bind 0.0.0.0`），手机浏览器访问 `http://<电脑IP>:8765/` 即可。
+（`python -m http.server 8765 --bind 0.0.0.0`），手机浏览器访问 `http://<电脑IP>:8765/scanlike/` 即可。
 界面在窄屏下会自动切换成抽屉式布局，触控热区加大。
 
 ---
@@ -112,16 +117,16 @@ npx --yes serve -l 8765 .
 
 | 组件 | 作用 |
 |---|---|
-| `vendor/pdf.min.mjs` + `pdf.worker.min.mjs` | Mozilla pdf.js，PDF 页 → 位图（含加密文档密码回调） |
-| `vendor/pdf-lib.min.js` | 位图 → 新 PDF（含元数据写入） |
-| `vendor/cmaps/`、`vendor/standard_fonts/` | 中日韩字体映射，中文 PDF 不缺字 |
-| `vendor/docx-preview.min.js` + `vendor/jszip.min.js` | Word 文档渲染（保留分页、表格、图片、页眉页脚） |
-| `vendor/xlsx.full.min.js` | Excel 解析与数字格式 |
-| `vendor/html-to-image.js` | DOM → Canvas 栅格化（Word / Excel 走这条路） |
+| `../vendor/pdf.min.mjs` + `pdf.worker.min.mjs` | Mozilla pdf.js，PDF 页 → 位图（含加密文档密码回调） |
+| `../vendor/pdf-lib.min.js` | 位图 → 新 PDF（含元数据写入） |
+| `../vendor/cmaps/`、`../vendor/standard_fonts/` | 中日韩字体映射，中文 PDF 不缺字 |
+| `../vendor/docx-preview.min.js` + `../vendor/jszip.min.js` | Word 文档渲染（保留分页、表格、图片、页眉页脚） |
+| `../vendor/xlsx.full.min.js` | Excel 解析与数字格式 |
+| `../vendor/html-to-image.js` | DOM → Canvas 栅格化（Word / Excel 走这条路） |
 | `office.js` | **自研 PPTX 渲染器**（DrawingML：形状、文本框、图片、表格、背景），直接画到 Canvas |
 | `effects.js` | 效果管线：Canvas 滤镜 + 覆盖层 + 噪点贴图 + 旋转/边框/阴影 |
 | `scan-worker.js` | **效果处理线程**：整条管线跑在 Worker + OffscreenCanvas 上 |
-| `sw.js` + `manifest.webmanifest` | 离线缓存与安装到桌面 |
+| `manifest.webmanifest` | 安装到桌面（离线缓存由工具箱的 SW 统一负责） |
 
 **处理流程**
 
@@ -168,9 +173,10 @@ zinc / blue / green / amber / red 标准阶梯。亮暗两套用 CSS 的 `light-
 
 **离线缓存与改代码**
 
-`sw.js` 的策略是：`vendor/` 下的第三方库缓存优先（pdf.js 的 worker 有 1MB，走缓存最快），
-其余本机文件（html / css / js）**网络优先、断网回落缓存**——所以改完代码**刷新一次**就能看到新版，
-同时断网依然完整可用。
+离线缓存由**工具箱的 Service Worker**（`../service-worker.js`，作用域 `/tools/`）统一负责，
+本应用不再自带 `sw.js`。策略是：`vendor/` 下的第三方库缓存优先
+（pdf.js 的 worker 有 1MB，走缓存最快），其余本机文件（html / css / js）**网络优先、断网回落缓存**
+——所以改完代码**刷新一次**就能看到新版，同时断网依然完整可用。
 
 万一还是看到旧界面，在开发者工具 → Application → Storage → Clear site data 清一次即可。
 
@@ -179,27 +185,41 @@ zinc / blue / green / amber / red 标准阶梯。亮暗两套用 CSS 的 `light-
 ## 七、目录结构
 
 ```
-scanlike/
-├─ 启动.bat / start.sh    一键启动
-├─ index.html             界面
-├─ styles.css             样式（含移动端响应式）
-├─ app.js                 界面逻辑、文件管理、覆盖层、缩略图、导出
-├─ effects.js             效果管线（可独立复用）
-├─ office.js              Office 解析与渲染
-├─ scan-worker.js         效果处理线程
-├─ sw.js                  离线缓存
-├─ manifest.webmanifest   PWA 清单
-├─ icon.svg / icon-*.png  图标（PNG 供 iOS 添加到主屏幕）
-├─ vendor/                所有第三方库（已本地化，离线可用）
-└─ （回归测试套件在开发仓库中，未随线上版本发布）
+tools/
+├─ index.html             工具箱外壳（ScanLike 从这里以 iframe 内嵌打开）
+├─ service-worker.js      工具箱 SW：外壳 + 全部工具 + 本子应用，统一离线缓存
+├─ vendor/                所有第三方库（本子应用与其余工具共用同一份）
+└─ scanlike/
+   ├─ 启动.bat / start.sh    一键启动（服务的是上一层 tools/）
+   ├─ index.html             界面
+   ├─ styles.css             样式（含移动端响应式）
+   ├─ app.js                 界面逻辑、文件管理、覆盖层、缩略图、导出
+   ├─ effects.js             效果管线（可独立复用）
+   ├─ office.js              Office 解析与渲染
+   ├─ scan-worker.js         效果处理线程
+   ├─ manifest.webmanifest   PWA 清单
+   ├─ icon.svg / icon-*.png  图标（PNG 供 iOS 添加到主屏幕）
+   └─ （回归测试套件在开发仓库中，未随线上版本发布）
 ```
 
-### 与 tools/ 下其他工具共存
+### 与工具箱的关系
 
-`tools/` 目录本身有一个 Tools PWA，注册了作用域为 `/tools/` 的 Service Worker。
-本工具是独立子应用，有自己的 SW（作用域 `/tools/scanlike/`），更具体的作用域优先，两者互不干扰。
-另外 **Cache Storage 按 origin 共享**，因此两个 SW 在 `activate` 时都只清理各自前缀的缓存
-（`scanlike-*` / `Tools*`），不会误删对方的离线缓存。
+ScanLike 是工具箱（`tools/`）的一个**内嵌子应用**：从工具箱首页点卡片进来时，
+它被装在外壳的 iframe 里（`#scanlike`），顶栏、返回条、主题都由外壳提供，
+所以本页会自动隐藏自己的品牌区与主题按钮（`documentElement[data-embedded="1"]`）。
+外壳顶栏的「全屏打开 ↗」可以直接跳到独立页面。
+
+**依赖库与工具箱共用一份。** `pdf.js` / `pdf-lib` / `xlsx` / `docx-preview` / `jszip` /
+`html-to-image` / `cmaps` / `standard_fonts` 全部指向 `../vendor/` ——
+工具箱里的 PDF、Office、图片工具用的是同一批文件，没有必要各存一份。
+（历史上这里曾有一份 5MB 的完整副本，已删除。）
+
+离线缓存同样由工具箱的 SW 统一负责，本应用**不再注册自己的 Service Worker**。
+独立访问 `/tools/scanlike/` 时，作用域为 `/tools/` 的那个 SW 同样会接管它，
+因此「全屏打开」和安装成 PWA 的离线能力都不受影响。
+
+主题与外壳共用 `localStorage['tools.theme']` 这一个键（`light` / `dark` / 不存在=跟随系统），
+两边靠 `storage` 事件实时同步。
 
 ---
 

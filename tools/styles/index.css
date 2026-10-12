@@ -199,6 +199,15 @@ nav.cats {
     scrollbar-width: thin;
 }
 
+/*
+ * [hidden] 只是 UA 样式表里的一条普通规则，会被上面这条 display:flex 盖掉，
+ * 于是 catsBar.hidden = true 根本没生效 —— 工具页里一直挂着一条分类栏。
+ * 这里显式覆盖回来。
+ */
+nav.cats[hidden] {
+    display: none;
+}
+
 button.cat {
     flex: 0 0 auto;
     display: inline-flex;
@@ -384,6 +393,66 @@ a.card.tool-card:focus-visible {
 
 .crumb {
     color: var(--fg-3);
+}
+
+/* ============================================================
+   内嵌子应用（ScanLike）
+   顶栏以下的整块高度交给 iframe，页面本身不滚动，滚动交给子应用内部。
+   ============================================================ */
+
+body.embed-mode {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+body.embed-mode main.main {
+    max-width: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* 子应用自己撑满，不需要页脚 */
+body.embed-mode footer.footer {
+    display: none;
+}
+
+.embed-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* 复用工具页的返回条样式，只是去掉外边距、改成通栏 */
+.embed-wrap .tool-nav {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: .6rem 1.25rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.embed-open {
+    margin-left: auto;
+    color: var(--fg-3);
+    text-decoration: none;
+}
+
+.embed-open:hover {
+    color: var(--accent);
+}
+
+.embed-frame {
+    flex: 1 1 auto;
+    display: block;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    background: var(--surface);
 }
 
 .tool-page {

@@ -31,13 +31,15 @@ function currentTheme() {
   return document.documentElement.dataset.theme || '';
 }
 
-function applyTheme(t) {
+function applyTheme(t, persist = true) {
   if (t) document.documentElement.dataset.theme = t;
   else delete document.documentElement.dataset.theme;
-  try {
-    if (t) localStorage.setItem(THEME_KEY, t);
-    else localStorage.removeItem(THEME_KEY);
-  } catch { /* 隐私模式忽略 */ }
+  if (persist) {
+    try {
+      if (t) localStorage.setItem(THEME_KEY, t);
+      else localStorage.removeItem(THEME_KEY);
+    } catch { /* 隐私模式忽略 */ }
+  }
   themeBtn.title = `主题：${THEME_LABEL[t]}（点击切换）`;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
@@ -50,6 +52,17 @@ themeBtn.addEventListener('click', () => {
   const i = THEME_ORDER.indexOf(currentTheme());
   applyTheme(THEME_ORDER[(i + 1) % THEME_ORDER.length]);
   toast(`主题：${THEME_LABEL[currentTheme()]}`);
+});
+
+/*
+ * 内嵌的子应用（ScanLike）和外壳共用 tools.theme 这一个键。
+ * 子应用里点主题按钮改的是同一个 localStorage，同源文档会收到 storage 事件，
+ * 这里据此把外壳也切过去 —— 不写回 localStorage，避免来回触发。
+ */
+window.addEventListener('storage', (e) => {
+  if (e.key !== null && e.key !== THEME_KEY) return;
+  const t = THEME_ORDER.includes(e.newValue) ? e.newValue : '';
+  if (t !== currentTheme()) applyTheme(t, false);
 });
 
 /* ---------------------------------------------------------- 卡片网格 */
@@ -133,6 +146,7 @@ function renderCats() {
 /* ---------------------------------------------------------- 路由 */
 
 function teardown() {
+  document.body.classList.remove('embed-mode');
   if (state.cleanup) {
     try { state.cleanup(); } catch (e) { console.error(e); }
     state.cleanup = null;
@@ -142,6 +156,29 @@ function teardown() {
   }
   state.module = null;
   state.toolDef = null;
+}
+
+/*
+ * 内嵌型条目：用 iframe 把独立子应用（ScanLike）装进外壳里，
+ * 保留工具箱顶栏与返回条，点卡片不再跳到另一个页面。
+ *
+ * 子应用自己会检测 window.self !== window.top 并收起它的品牌区，
+ * 所以这里不需要额外通信；主题靠共用的 localStorage 键 tools.theme 同步。
+ */
+function renderEmbed(def) {
+  state.toolDef = def;
+  catsBar.hidden = true;
+  document.body.classList.add('embed-mode');
+  main.replaceChildren(
+    el('div', { class: 'embed-wrap' },
+      el('div', { class: 'tool-nav' },
+        el('a', { class: 'back-link', href: '#', text: '← 返回工具箱' }),
+        el('span', { class: 'crumb', text: def.name }),
+        el('a', { class: 'embed-open', href: def.embed, target: '_blank', rel: 'noopener', text: '全屏打开 ↗' }),
+      ),
+      el('iframe', { class: 'embed-frame', src: def.embed, title: def.name }),
+    ),
+  );
 }
 
 function renderError(title, message, retry) {
@@ -155,6 +192,7 @@ function renderError(title, message, retry) {
 }
 
 async function renderTool(def) {
+  if (def.embed) { renderEmbed(def); return; }
   state.toolDef = def;
   main.replaceChildren(el('div', { class: 'loading', text: '正在加载工具…' }));
   catsBar.hidden = true;

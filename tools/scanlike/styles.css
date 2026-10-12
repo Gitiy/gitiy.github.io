@@ -1,7 +1,10 @@
 /* ============================================================
    ScanLike 主题
    配色参照 shadcn/ui + Radix Colors + Tailwind 的语义化命名：
-   色板取 Tailwind 的 zinc / blue / green / amber / red 标准阶梯。
+   中性色取 Tailwind 的 zinc 阶梯，状态色取 green / amber / red。
+
+   强调色对齐工具箱外壳（tools/styles/index.css 的 --accent，cadetblue），
+   这样从工具箱点进来不会突然换一套主色。
 
    亮暗切换用 CSS 的 light-dark()：同一份 token 定义同时给出两套色值，
    浏览器根据 color-scheme 自动选择 —— 默认跟随系统，
@@ -28,11 +31,12 @@
   --muted-foreground: light-dark(#52525b, #a1a1aa);
   --subtle-foreground: light-dark(#a1a1aa, #71717a);
 
-  --primary: light-dark(#2563eb, #3b82f6);
-  --primary-hover: light-dark(#1d4ed8, #60a5fa);
-  --primary-foreground: #ffffff;
-  --primary-soft: light-dark(rgba(37, 99, 235, .09), rgba(59, 130, 246, .16));
-  --primary-ring: light-dark(rgba(37, 99, 235, .35), rgba(59, 130, 246, .45));
+  /* 强调色与工具箱外壳的 --accent 一致（cadetblue） */
+  --primary: light-dark(#5f9ea0, #7fb3b5);
+  --primary-hover: light-dark(#4f8b8d, #93c5c7);
+  --primary-foreground: light-dark(#ffffff, #10161a);
+  --primary-soft: light-dark(rgba(95, 158, 160, .12), rgba(127, 179, 181, .16));
+  --primary-ring: light-dark(rgba(95, 158, 160, .35), rgba(127, 179, 181, .45));
 
   --success: light-dark(#15803d, #4ade80);
   --success-soft: light-dark(rgba(21, 128, 61, .1), rgba(74, 222, 128, .14));
@@ -67,6 +71,22 @@
 /* 手动指定主题：只需改 color-scheme，light-dark() 会自动跟着换 */
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
+
+/* ------------------------------------------------------------
+   被工具箱外壳内嵌时（tools/#scanlike）
+   外壳顶栏已经提供了品牌与主题开关，这里把重复的收起来，
+   只留「添加文件 / 导出」这些本应用的操作。
+   ------------------------------------------------------------ */
+:root[data-embedded="1"] .brand,
+:root[data-embedded="1"] #btnTheme { display: none; }
+
+/* 品牌区收起后，宽屏只剩操作区，靠右对齐才不会飘到左边 */
+:root[data-embedded="1"] .topbar { justify-content: flex-end; }
+
+@media (max-width: 900px) {
+  /* 窄屏还有个菜单按钮，让它回左边 */
+  :root[data-embedded="1"] .topbar { justify-content: space-between; }
+}
 
 /* 兼容旧变量名（早期代码里用到过） */
 :root {

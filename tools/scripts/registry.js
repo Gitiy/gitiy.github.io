@@ -10,7 +10,9 @@
  *   badge     角标：'hot' | 'new' | 空
  *   module    模块路径（相对本文件）；同一模块可被多条复用
  *   params    传给模块的参数，模块里通过 app.toolDef.params 读取
- *   url       外链型条目：直接跳转，不做 hash 路由（用于独立子应用）
+ *   url       外链型条目：直接跳转（新标签页打开，不做 hash 路由）
+ *   embed     内嵌型条目：用 iframe 装进工具箱外壳，保留顶栏与返回条，
+ *             主题与外壳共用 localStorage 键 tools.theme
  *   keywords  额外搜索关键词
  */
 
@@ -368,7 +370,7 @@ export const TOOLS = [
   {
     id: 'scanlike', name: 'ScanLike 扫描件生成器', cat: 'misc', icon: '📠', badge: 'hot',
     desc: '把 PDF / Word / Excel / PPT / 图片变成逼真的扫描件，纯本地处理，可离线。',
-    url: './scanlike/',
+    embed: './scanlike/',
     keywords: '扫描 扫描件 scan 噪点 泛黄 盖章 签名',
   },
 ];

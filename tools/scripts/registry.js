@@ -186,6 +186,24 @@ export const TOOLS = [
     keywords: '元数据 metadata 标题 作者 属性 信息',
   },
   {
+    id: 'pdf-form', name: 'PDF 表单填写', cat: 'pdf', icon: '📝', badge: 'new',
+    desc: '读出 PDF 里的 AcroForm 字段，直接在浏览器里填好再导出。可选扁平化，把内容固化到页面上。',
+    module: './tools/pdf-form.js',
+    keywords: '表单 填写 form acroform 字段 填空 复选框 下拉 扁平化 flatten',
+  },
+  {
+    id: 'pdf-annotate', name: 'PDF 批注标注', cat: 'pdf', icon: '🖍️', badge: 'new',
+    desc: '高亮、下划线、删除线、方框、文字批注与手绘，导出后烧进页面。文字层保留，仍可选中复制。',
+    module: './tools/pdf-annotate.js',
+    keywords: '批注 标注 高亮 下划线 删除线 方框 手绘 注释 annotate highlight',
+  },
+  {
+    id: 'pdf-redact', name: 'PDF 涂黑', cat: 'pdf', icon: '⬛', badge: 'new',
+    desc: '把敏感内容真正抹掉：涂黑过的页面会整页转成图片，底层文字一并消失，不是盖一块黑布那种假涂黑。',
+    module: './tools/pdf-redact.js',
+    keywords: '涂黑 密文 打码 遮蔽 redact redaction 隐私 脱敏 马赛克',
+  },
+  {
     id: 'pdf-flatten', name: 'PDF 瘦身 / 转纯图', cat: 'pdf', icon: '🪶',
     desc: '把 PDF 栅格化重新压缩，大幅减小体积；也可转成纯图片版防止复制篡改。',
     module: './tools/pdf-flatten.js',
@@ -208,6 +226,12 @@ export const TOOLS = [
     desc: '把 PDF 内嵌的图片原样导出，不重新编码，保留原始清晰度。',
     module: './tools/pdf-img-extract.js',
     keywords: '提取图片 导出图片 内嵌图 extract image',
+  },
+  {
+    id: 'pdf-diff', name: 'PDF 文档对比', cat: 'pdf', icon: '🔬', badge: 'new',
+    desc: '对比两份 PDF 的文字与版面差异：文字按行给出增删，版面用红色标出改动的像素区域。',
+    module: './tools/pdf-diff.js',
+    keywords: '对比 比较 diff 差异 版本 修订 改动 compare 逐页',
   },
 
   /* ============================================================

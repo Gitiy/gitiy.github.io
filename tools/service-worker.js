@@ -13,7 +13,7 @@
    唯一的例外是 LEGACY_PREFIXES 里那些已经废弃、不会再有人清理的前缀。
    ============================================================ */
 
-const VERSION = 'Tools-v13';
+const VERSION = 'Tools-v14';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -76,13 +76,17 @@ const CORE = [
   'scripts/tools/image-to-pdf.js',
   'scripts/tools/image-watermark.js',
   'scripts/tools/office-convert.js',
+  'scripts/tools/pdf-annotate.js',
   'scripts/tools/pdf-convert.js',
+  'scripts/tools/pdf-diff.js',
   'scripts/tools/pdf-flatten.js',
+  'scripts/tools/pdf-form.js',
   'scripts/tools/pdf-img-extract.js',
   'scripts/tools/pdf-merge.js',
   'scripts/tools/pdf-meta.js',
   'scripts/tools/pdf-pagenum.js',
   'scripts/tools/pdf-pages.js',
+  'scripts/tools/pdf-redact.js',
   'scripts/tools/pdf-resize.js',
   'scripts/tools/pdf-split.js',
   'scripts/tools/pdf-text.js',

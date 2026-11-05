@@ -50,6 +50,11 @@ export const tool = {
       label: '显示密码', value: false,
       onChange: (v) => { pwd.node.type = v ? 'text' : 'password'; },
     });
+    const noPwdNote = el('p', {
+      class: 'hint',
+      text: '✓ 打开这个文件本来就不需要密码，只是被限制了打印/复制。不用填任何东西，点下面的按钮就能移除全部保护。',
+    });
+    noPwdNote.style.display = 'none';
 
     const btnGo = button('解锁并下载', unlock, { primary: true });
     btnGo.disabled = true;
@@ -58,8 +63,8 @@ export const tool = {
       dz,
       info,
       box,
-      fieldset('解锁设置', pwd, showPwd),
-      note('本工具只处理你有权访问的文档，不会尝试破解或猜解密码；忘记密码时无法恢复。所有计算都在浏览器里进行，文件不会离开你的设备。'),
+      fieldset('解锁设置', pwd, showPwd, noPwdNote),
+      note('有打开密码 → 填入密码；没有打开密码、只是限制打印/复制 → 留空一键移除；忘记或不知道打开密码 → 无法处理（这是加密本身的限制，本工具不提供破解猜测）。文件全程只在浏览器本地计算，不会上传。'),
     );
     page.setActions(btnGo, button('清空', reset, { small: true }));
     app.main.appendChild(page.root);
@@ -73,6 +78,10 @@ export const tool = {
       info.className = 'hint';
       box.style.display = 'none';
       btnGo.disabled = true;
+      btnGo.textContent = '解锁并下载';
+      pwd.root.style.display = '';
+      showPwd.root.style.display = '';
+      noPwdNote.style.display = 'none';
     }
 
     async function load(file) {
@@ -90,8 +99,9 @@ export const tool = {
         }
 
         src = { name: file.name, bytes };
+        const noPwd = meta.needsPassword === false;
         info.textContent = `${file.name} · ${fmtBytes(bytes.length)}`;
-        metaLine.textContent = `加密方式：${meta.algorithm}　（V${meta.version} / R${meta.revision}）`;
+        metaLine.textContent = `加密方式：${meta.algorithm}　（V${meta.version} / R${meta.revision}）${noPwd ? '　· 无需密码' : ''}`;
 
         permRow.replaceChildren();
         for (const p of meta.permissions) {
@@ -106,12 +116,16 @@ export const tool = {
           }));
         }
 
-        advice.textContent = meta.needsPassword === false
-          ? '这个文件没有打开密码，只有打印/复制等权限限制。密码留空，直接点「解锁并下载」即可。'
+        advice.textContent = noPwd
+          ? '✓ 这个文件打开时不需要密码，只是被限制了打印/复制。不用填任何东西，点下面的按钮就能移除全部保护。'
           : '请输入打开密码（或所有者密码），解锁后会得到一份完全不受保护的副本。';
         box.style.display = '';
         btnGo.disabled = false;
-        if (meta.needsPassword === true) pwd.node.focus();
+        btnGo.textContent = noPwd ? '直接移除保护' : '解锁并下载';
+        pwd.root.style.display = noPwd ? 'none' : '';
+        showPwd.root.style.display = noPwd ? 'none' : '';
+        noPwdNote.style.display = noPwd ? '' : 'none';
+        if (!noPwd) pwd.node.focus();
       } catch (err) {
         info.textContent = `读取失败：${err.message}`;
         info.className = 'hint';

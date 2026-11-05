@@ -13,7 +13,7 @@
    唯一的例外是 LEGACY_PREFIXES 里那些已经废弃、不会再有人清理的前缀。
    ============================================================ */
 
-const VERSION = 'Tools-v14';
+const VERSION = 'Tools-v15';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -37,6 +37,7 @@ const CORE = [
   'scripts/lib/hash.js',
   'scripts/lib/office.js',
   'scripts/lib/ooxml.js',
+  'scripts/lib/pdf-unlock.js',
   'scripts/lib/pdfkit.js',
   'scripts/lib/sandbox.js',
   'scripts/lib/scripts.js',
@@ -90,6 +91,7 @@ const CORE = [
   'scripts/tools/pdf-resize.js',
   'scripts/tools/pdf-split.js',
   'scripts/tools/pdf-text.js',
+  'scripts/tools/pdf-unlock.js',
   'scripts/tools/pdf-watermark.js',
   'scripts/tools/sheet-tools.js',
   'scripts/tools/text-dedupe.js',

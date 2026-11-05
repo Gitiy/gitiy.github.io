@@ -186,6 +186,12 @@ export const TOOLS = [
     keywords: '元数据 metadata 标题 作者 属性 信息',
   },
   {
+    id: 'pdf-unlock', name: 'PDF 去除密码', cat: 'pdf', icon: '🔓', badge: 'new',
+    desc: '输入已知密码，导出一份不再需要密码、也不带打印/复制限制的 PDF。支持 RC4、AES-128、AES-256，内容原样保留。',
+    module: './tools/pdf-unlock.js',
+    keywords: '去密码 去除密码 解锁 解密 移除密码 权限 限制 打印 复制 加密 unlock decrypt remove password',
+  },
+  {
     id: 'pdf-form', name: 'PDF 表单填写', cat: 'pdf', icon: '📝', badge: 'new',
     desc: '读出 PDF 里的 AcroForm 字段，直接在浏览器里填好再导出。可选扁平化，把内容固化到页面上。',
     module: './tools/pdf-form.js',

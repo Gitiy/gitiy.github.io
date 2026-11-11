@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+<script>
+/* 工具箱桥接：主题共用 localStorage['tools.theme']，内嵌时收起品牌区 */
+(function () {
+  var KEY = 'tools.theme';
+  function isDark() {
+    var t = localStorage.getItem(KEY);
+    return t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function sync() { try { localStorage.setItem('themeState', isDark() ? 'dark' : 'light'); } catch (e) {} }
+  /* 原站会探测几个 CDN 的延迟；依赖已全部本地化，离线时不该再发外部请求 */
+  var _fetch = window.fetch;
+  window.fetch = function (u) {
+    var url = typeof u === 'string' ? u : (u && u.url);
+    if (url && url.indexOf('/npm/lodash@4.17.21/package.json') >= 0) {
+      return Promise.resolve(new Response('{}', { status: 200 }));
+    }
+    return _fetch.apply(this, arguments);
+  };
+  sync();
+  addEventListener('storage', function (e) {
+    if (e.key === KEY || e.key === null) { sync(); location.reload(); }
+  });
+  if (self !== top) document.documentElement.setAttribute('data-embedded', '');
+})();
+</script>
+
+  <!-- Google tag (gtag.js) -->
+  
+  <meta charset="UTF-8" />
+  <!--  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Markdown 编辑器 · Gitiy 工具箱</title>
+  <meta name="description"
+    content="基于 VSCode Monaco 内核的专业在线 Markdown 编辑器。支持实时预览、LaTeX 数学公式、Mermaid 图表、代码高亮(100+语言)、AI 写作辅助、PDF/HTML 导出。开源免费，无需安装，浏览器即用。" />
+  <meta name="keywords"
+    content="Markdown在线编辑器,Markdown在线预览,在线Markdown,Markdown Editor Online,Monaco Editor,LaTeX编辑器,Mermaid图表,Markdown AI助手,开源Markdown编辑器" />
+  <meta name="author" content="Bigonion" />
+  <meta name="robots" content="index,follow" />
+  <meta name="format-detection" content="telephone=no" />
+  
+
+  <!-- 搜索引擎验证 -->
+  
+  
+  
+  
+
+  <!-- Open Graph / Facebook -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <!-- Twitter Cards -->
+  
+  
+  
+  
+  
+
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+
+  <!-- JSON-LD Structured Data -->
+  
+
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  
+  <!-- 🎨 加载骨架样式 - 内联CSS确保立即显示 -->
+  <style>
+    /* 重置默认样式，防止布局跳动 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* 防止骨架屏期间出现滚动条 */
+    }
+
+    /* 加载骨架样式 - 简约现代风格 */
+    .app-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      overflow: hidden; /* 防止内部元素导致滚动 */
+    }
+
+    .loading-content {
+      text-align: center;
+      color: #2c3e50;
+      position: relative;
+      z-index: 10;
+      max-height: 65vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-grow: 1;
+      /* 固定最小高度，防止内容变化导致抖动 */
+      min-height: 400px;
+    }
+
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 700;
+      color: #3498db;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 2px solid rgba(52, 152, 219, 0.1);
+    }
+
+    .loading-title {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      color: #2c3e50;
+      line-height: 1.2; /* 固定行高 */
+    }
+
+    .loading-title-en {
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      color: #7f8c8d;
+      font-style: italic;
+      line-height: 1.2; /* 固定行高 */
+    }
+
+    .loading-subtitle {
+      font-size: 16px;
+      opacity: 0.8;
+      margin-bottom: 40px;
+      font-weight: 300;
+      color: #34495e;
+      line-height: 1.5;
+      /* 固定高度，防止文本变化导致抖动 */
+      min-height: 48px;
+    }
+
+    .loading-subtitle-en {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-top: 8px;
+      color: #7f8c8d;
+      line-height: 1.2; /* 固定行高 */
+    }
+
+    /* 加载动画 - 简约风格 */
+    .loading-spinner {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 24px; /* 固定margin，确保位置稳定 */
+    }
+
+    .loading-spinner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(52, 152, 219, 0.2);
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1.2s linear infinite;
+    }
+
+    /* 进度文本 - 移除抖动动画，使用固定高度 */
+    .loading-progress {
+      font-size: 14px;
+      opacity: 0.8;
+      color: #34495e;
+      /* 移除动画，固定高度防止抖动 */
+      height: 20px;
+      line-height: 20px;
+    }
+
+    .loading-progress-en {
+      font-size: 12px;
+      opacity: 0.6;
+      color: #7f8c8d;
+      margin-top: 6px;
+      /* 固定高度防止抖动 */
+      height: 16px;
+      line-height: 16px;
+    }
+
+    /* 骨架屏模拟布局 - 简约风格 */
+    .skeleton-layout {
+      width: 100%;
+      height: 25vh;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(52, 152, 219, 0.1);
+      padding: 30px;
+      display: flex;
+      gap: 24px;
+      z-index: 1;
+      box-sizing: border-box;
+      /* 确保底部面板固定位置 */
+      flex-shrink: 0;
+    }
+
+    .skeleton-panel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+      animation: shimmer 2.5s infinite ease-in-out;
+      border: 1px solid rgba(52, 152, 219, 0.05);
+    }
+
+    .skeleton-line {
+      height: 10px;
+      background: linear-gradient(90deg, #ecf0f1 25%, #bdc3c7 50%, #ecf0f1 75%);
+      background-size: 200% 100%;
+      border-radius: 5px;
+      margin-bottom: 12px;
+      animation: shimmerMove 1.8s infinite ease-in-out;
+    }
+
+    .skeleton-line:nth-child(1) { width: 85%; }
+    .skeleton-line:nth-child(2) { width: 95%; }
+    .skeleton-line:nth-child(3) { width: 75%; }
+    .skeleton-line:nth-child(4) { width: 90%; }
+    .skeleton-line:nth-child(5) { width: 65%; }
+
+    /* 动画定义 */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes shimmer {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    @keyframes shimmerMove {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .loading-logo { 
+        width: 100px; 
+        height: 100px; 
+        font-size: 40px;
+        margin-bottom: 30px;
+      }
+      .loading-title { font-size: 28px; }
+      .loading-title-en { font-size: 16px; }
+      .loading-subtitle { font-size: 14px; }
+      .skeleton-layout { 
+        flex-direction: column; 
+        height: 30%;
+        padding: 24px;
+        gap: 20px;
+      }
+      .skeleton-panel { padding: 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .loading-logo { 
+        width: 80px; 
+        height: 80px; 
+        font-size: 32px;
+      }
+      .loading-title { font-size: 24px; }
+      .loading-title-en { font-size: 14px; }
+      .skeleton-layout { padding: 20px; }
+    }
+
+    /* 隐藏类 - 用于骨架屏渐变消失 */
+    .app-loading.hidden {
+      opacity: 0;
+      pointer-events: none; /* 动画过程中禁止交互 */
+      transition: opacity 0.6s ease-out;
+    }
+
+    /* 初始时隐藏 React 容器，并设置过渡效果 */
+    #root {
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    /* 深色模式支持 */
+    @media (prefers-color-scheme: dark) {
+      .app-loading {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      }
+      .loading-content {
+        color: #ecf0f1;
+      }
+      .loading-logo {
+        background: rgba(255, 255, 255, 0.1);
+        color: #3498db;
+        border: 2px solid rgba(52, 152, 219, 0.3);
+      }
+      .loading-title {
+        color: #ecf0f1;
+      }
+      .loading-title-en {
+        color: #bdc3c7;
+      }
+      .loading-subtitle {
+        color: #bdc3c7;
+      }
+      .loading-progress {
+        color: #bdc3c7;
+      }
+      .skeleton-layout {
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(52, 152, 219, 0.2);
+      }
+      .skeleton-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(52, 152, 219, 0.1);
+      }
+      .skeleton-line {
+        background: linear-gradient(90deg, #34495e 25%, #4a5f7a 50%, #34495e 75%);
+        background-size: 200% 100%;
+      }
+    }
+  </style>
+
+  
+  
+  <link rel="stylesheet" crossorigin="anonymous" href="./vendor/katex/katex.min.css">
+  <!-- <script src="./vendor/katex/katex.min.js"></script> -->
+  <!-- <script src="./vendor/incremental-dom-min.js"></script> -->
+  <!-- <script src="./vendor/markdown-it-incremental-dom.min.js"></script> -->
+  <script type="module" crossorigin src="./static/index-ddf7bf1e.js"></script>
+  <link rel="modulepreload" crossorigin href="./static/@babel-518c05f7.js">
+  <link rel="modulepreload" crossorigin href="./static/react-0d9c9f23.js">
+  <link rel="modulepreload" crossorigin href="./static/scheduler-765c72db.js">
+  <link rel="modulepreload" crossorigin href="./static/react-dom-b710246a.js">
+  <link rel="modulepreload" crossorigin href="./static/monaco-editor-5cf1114e.js">
+  <link rel="modulepreload" crossorigin href="./static/clsx-29d81c80.js">
+  <link rel="modulepreload" crossorigin href="./static/hoist-non-react-statics-3f8ebaa8.js">
+  <link rel="modulepreload" crossorigin href="./static/stylis-79144faa.js">
+  <link rel="modulepreload" crossorigin href="./static/@emotion-c98c060d.js">
+  <link rel="modulepreload" crossorigin href="./static/react-transition-group-5217f7e1.js">
+  <link rel="modulepreload" crossorigin href="./static/@popperjs-61ffd834.js">
+  <link rel="modulepreload" crossorigin href="./static/prop-types-c01d55b3.js">
+  <link rel="modulepreload" crossorigin href="./static/react-is-11039b32.js">
+  <link rel="modulepreload" crossorigin href="./static/@mui-3cd57b73.js">
+  <link rel="modulepreload" crossorigin href="./static/gsap-cf87e9ff.js">
+  <link rel="modulepreload" crossorigin href="./static/i18next-2edfafb0.js">
+  <link rel="modulepreload" crossorigin href="./static/markdown-it-multimd-table-766322c9.js">
+  <link rel="modulepreload" crossorigin href="./static/unorm-1228fe77.js">
+  <link rel="modulepreload" crossorigin href="./static/uslug-b4eaf0e7.js">
+  <link rel="modulepreload" crossorigin href="./static/markdown-it-github-toc-d2e55c92.js">
+  <link rel="modulepreload" crossorigin href="./static/markdown-it-task-lists-4fbe77b0.js">
+  <link rel="modulepreload" crossorigin href="./static/markdown-it-emoji-66d1da7f.js">
+  <link rel="modulepreload" crossorigin href="./static/mobx-890d6d9e.js">
+  <link rel="modulepreload" crossorigin href="./static/use-sync-external-store-3bf5d15d.js">
+  <link rel="modulepreload" crossorigin href="./static/mobx-react-lite-64872c2a.js">
+  <link rel="modulepreload" crossorigin href="./static/mobx-react-49086c1a.js">
+  <link rel="modulepreload" crossorigin href="./static/react-i18next-093df503.js">
+  <link rel="modulepreload" crossorigin href="./static/state-local-dd516420.js">
+  <link rel="modulepreload" crossorigin href="./static/@monaco-editor-41149cb1.js">
+  <link rel="modulepreload" crossorigin href="./static/html2canvas-a81bcda4.js">
+  <link rel="modulepreload" crossorigin href="./static/react-draggable-4a1d91b3.js">
+  <link rel="modulepreload" crossorigin href="./static/react-resizable-44dc0d2e.js">
+  <link rel="modulepreload" crossorigin href="./static/i18next-browser-languagedetector-953d2d0b.js">
+  <link rel="stylesheet" href="./c42cf3c5.monaco-editor.css">
+  <link rel="stylesheet" href="./6ae42fb7.style.css">
+  <link rel="stylesheet" href="./f65e29ed.react-resizable.css">
+  <link rel="stylesheet" href="./ad30020d.index.css">
+</head>
+
+<body>
+  <h1 style="display: none">
+    Markdown Online Editor - 专业在线 Markdown 编辑器。基于 VSCode Monaco 内核，支持实时预览、LaTeX 数学公式、Mermaid 流程图/时序图/甘特图、100+ 编程语言代码高亮、AI 写作辅助、PDF/HTML 导出、文件管理、PWA 离线支持。开源免费，无需安装，浏览器即用。
+  </h1>
+  
+  <!-- 🎨 加载骨架 - 与 React 应用容器并列，实现无冲突过渡 -->
+  <div class="app-loading" id="app-loading">
+    <div class="loading-content">
+      <div class="loading-logo">Md</div>
+      <h1 class="loading-title">Markdown在线编辑器</h1>
+      <p class="loading-title-en">Markdown Online Editor</p>
+      <div class="loading-subtitle">
+        专业、快速、优雅的Markdown编辑体验
+        <div class="loading-subtitle-en">Professional, Fast & Elegant Markdown Experience</div>
+      </div>
+      <div class="loading-spinner"></div>
+      <div class="loading-progress" id="loading-progress">正在加载核心组件...</div>
+      <div class="loading-progress-en" id="loading-progress-en">Loading core components...</div>
+    </div>
+    
+    <!-- 骨架屏预览布局 -->
+    <div class="skeleton-layout">
+      <div class="skeleton-panel">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+      </div>
+      <div class="skeleton-panel">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 🚀 React应用容器 - 初始透明，等待JS控制显示 -->
+  <div id="root"></div>
+  
+  <!-- 📱 加载进度脚本 - 增强用户体验 -->
+  <script>
+    (function() {
+      const progressText = document.getElementById('loading-progress');
+      const progressTextEn = document.getElementById('loading-progress-en');
+      
+      const messages = [
+        { zh: '正在加载核心组件...', en: 'Loading core components...' },
+        { zh: '正在初始化编辑器...', en: 'Initializing editor...' },
+        { zh: '正在加载Markdown解析器...', en: 'Loading Markdown parser...' },
+        { zh: '正在准备预览功能...', en: 'Preparing preview features...' },
+        { zh: '正在加载样式主题...', en: 'Loading style themes...' },
+        { zh: '即将完成...', en: 'Almost ready...' }
+      ];
+      
+      let messageIndex = 0;
+      // 增加间隔时间，减少布局变化频率
+      const interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % messages.length;
+        if (progressText && progressTextEn) {
+          // 使用requestAnimationFrame确保在下一帧更新，避免闪烁
+          requestAnimationFrame(() => {
+            progressText.textContent = messages[messageIndex].zh;
+            progressTextEn.textContent = messages[messageIndex].en;
+          });
+        }
+      }, 2500); // 增加到2.5秒，减少变化频率
+
+      // 清理定时器的函数
+      window.clearLoadingInterval = () => clearInterval(interval);
+      
+      // 更新进度消息的全局函数（供preInit.ts调用）
+      window.updateLoadingProgress = (zhMessage, enMessage) => {
+        if (progressText && progressTextEn) {
+          requestAnimationFrame(() => {
+            progressText.textContent = zhMessage;
+            progressTextEn.textContent = enMessage || 'Loading...';
+          });
+        }
+      };
+    })();
+  </script>
+  
+  <!-- <div id="plot"></div> -->
+  
+
+</body>
+
+</html>

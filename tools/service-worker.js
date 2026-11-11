@@ -6,14 +6,15 @@
    - 其余本机文件（html / css / js / json）→ 网络优先，失败回落缓存
      这样改完代码刷新一次就能看到新版，同时断网时依然可用
    - 其它同源请求（图标、cmaps、standard_fonts 等）→ 缓存优先，首次用到时写入
-   - 内嵌子应用 tools/scanlike/ 由本 SW 一并接管（它过去自带的 sw.js 已移除）
+   - 内嵌子应用 tools/scanlike/ 与 tools/markdown/ 都由本 SW 一并接管
+     （它们过去自带 / 可能自带的 sw.js 均已移除；markdown 的静态资源首次访问时落盘）
 
    注意：Cache Storage 按 origin 共享。同站有别的应用也注册了 SW，
    所以清理旧缓存时只删自己前缀的，否则会把别人的离线缓存一起删掉。
    唯一的例外是 LEGACY_PREFIXES 里那些已经废弃、不会再有人清理的前缀。
    ============================================================ */
 
-const VERSION = 'Tools-v15';
+const VERSION = 'Tools-v16';
 const CACHE_PREFIX = 'Tools';
 
 // 应用外壳与全部工具模块：装好即可离线使用
@@ -137,6 +138,11 @@ const CORE = [
   'images/icons/icon-maskable-192x192.png',
   'images/icons/icon-maskable-512x512.png',
 
+  // 内嵌子应用 Markdown 编辑器：体积大，只预缓存入口，
+  // 其余 static/ 与 vendor/ 资源首次打开时按需落盘，之后离线可用
+  'markdown/',
+  'markdown/index.html',
+
   // 内嵌子应用 ScanLike
   // 它原来自带一个 sw.js（前缀 scanlike-），现已并入本 SW，和其余工具共用一套缓存。
   // 依赖库（pdf.js / pdf-lib / xlsx / docx-preview / jszip / html-to-image / cmaps /
@@ -193,7 +199,9 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.origin) return;
 
   // vendor 里都是体积大且不常变的库，缓存优先能省掉每次 1MB 的 worker 下载
-  const inVendor = url.pathname.includes('/vendor/');
+  // markdown/ 是这个内嵌子应用的独立构建产物，和 vendor 一样体积大且稳定，
+  // 走缓存优先；首次在线打开时逐项落盘，之后断网也能完整使用。
+  const inVendor = url.pathname.includes('/vendor/') || url.pathname.includes('/markdown/');
   const networkFirst = !inVendor && (req.mode === 'navigate' || NETWORK_FIRST.test(url.pathname));
 
   e.respondWith((async () => {

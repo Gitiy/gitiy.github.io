@@ -398,6 +398,12 @@ export const TOOLS = [
     keywords: 'xapm ifw 规则 转换 xml',
   },
   {
+    id: 'markdown', name: 'Markdown 编辑器', cat: 'text', icon: '📝', badge: 'new',
+    desc: 'Monaco 内核的双栏编辑器：实时预览、LaTeX 公式、Mermaid 图表、代码高亮、目录、图片粘贴与 PDF/图片/MD 导出。文档只存在浏览器本地。',
+    embed: './markdown/',
+    keywords: 'markdown md 编辑器 写作 笔记 实时预览 latex katex mermaid 公式 流程图 代码高亮 monaco typora',
+  },
+  {
     id: 'scanlike', name: 'ScanLike 扫描件生成器', cat: 'misc', icon: '📠', badge: 'hot',
     desc: '把 PDF / Word / Excel / PPT / 图片变成逼真的扫描件，纯本地处理，可离线。',
     embed: './scanlike/',

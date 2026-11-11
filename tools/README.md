@@ -87,11 +87,14 @@
 |---|---|
 | 文本去重 | 去重复行，可选忽略大小写与空白、排序、保留首次或末次 |
 | 文本比较 | 逐行 diff，高亮新增与删除 |
+| **Markdown 编辑器** | 独立子应用（见 `markdown/`）：Monaco 双栏编辑、实时预览、LaTeX / Mermaid、代码高亮、目录与导出；全部依赖已本地化，离线可用 |
 
 ### 其他（5）
 
 AdBlock Hosts Sort、FlacMate（FLAC 元数据）、密码生成器、X-APM 转 IFW，
-以及独立子应用 **ScanLike**（扫描件生成器，见 `scanlike/`）。
+以及两个独立子应用 **ScanLike**（扫描件生成器，见 `scanlike/`）与 **Markdown 编辑器**（见 `markdown/`）。
+两者都用 iframe 内嵌进外壳，与外壳共用 `tools.theme` 主题键、共用同一个 Service Worker；
+Markdown 编辑器 fork 自 MIT 协议的 MarkdownOnline，第三方依赖已全部下载到它自己的 `vendor/` 下。
 
 ## 技术说明
 
